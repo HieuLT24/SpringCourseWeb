@@ -13,36 +13,52 @@
                         <a class="nav-link active" href="#">TRANG CHU</a>
                     </li>
                     <li class="nav-item" th:each="c: ${categories}">
-                        <a class="nav-link active" href="#" th:text="${c.name}"></a>
+                        <a class="nav-link active" th:href="@{/} + '?cateId=' + ${c.id}" th:text="${c.name}"></a>
                     </li>
                 </ul>
             </div>
         </nav>
 
         <main>
+            <form th:action="@{/}">
+                <div class="mb-3 mt-3">
+                    <input type="text" class="form-control" placeholder="Tìm theo tên" name="kw">
+                </div>
+                <div class="row mb-3 mt-3">
+                    <div  class="col-6">
+                        <input type="number" class="form-control" placeholder="Từ giá" name="fromPrice">
+                    </div>
+                    <div  class="col-6">
+                        <input type="number" class="form-control" placeholder="Đến giá" name="toPrice">
+                    </div>
+                </div>
+                <div class="mb-3 mt-3">
+                    <button class="btn btn-info">Tìm sản phẩm</button>
+                </div>
+            </form>
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Firstname</th>
-                        <th>Lastname</th>
-                        <th>Email</th>
+                        <th></th>
+                        <th>ID</th>
+                        <th>Ten Khoa Hoc</th>
+                        <th>Gia</th>
+                        <th></th>
+
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>John</td>
-                        <td>Doe</td>
-                        <td>john@example.com</td>
-                    </tr>
-                    <tr>
-                        <td>Mary</td>
-                        <td>Moe</td>
-                        <td>mary@example.com</td>
-                    </tr>
-                    <tr>
-                        <td>July</td>
-                        <td>Dooley</td>
-                        <td>july@example.com</td>
+                    <tr th:each="course : ${courses}">
+                        <td>
+                            <img th:src="${course.image}" width="200"/>
+                        </td>
+                        <td th:text="${course.id}"></td>
+                        <td th:text="${course.title}"></td>
+                        <td th:text="${course.price} + ' VND'"></td>
+                        <td>
+                            <a href="#" class="btn btn-success">Cap Nhat</a>
+                            <button class="btn btn-danger" th:onclick="'deleteCourse(\'' + @{/api/courses/} + ${course.id} + '\')'">Xóa</button>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -54,5 +70,6 @@
                 <p>&copy; 2025</p>
             </div>
         </footer>
+        <script th:src="@{/js/main.js}"></script>
     </body>
 </html>

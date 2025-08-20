@@ -2,6 +2,7 @@ F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\configs\DispatcherServletInit.java
 F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\configs\HibernateConfigs.java
 F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\configs\ThymeleafConfig.java
 F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\configs\WebAppContextConfigs.java
+F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\controllers\ApiCourseController.java
 F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\controllers\IndexController.java
 F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\courseweb\JakartaRestConfiguration.java
 F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\courseweb\resources\JakartaEE11Resource.java

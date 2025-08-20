@@ -66,6 +66,7 @@ public class Course implements Serializable {
     private Set<Lecture> lectureSet;
     @OneToMany(mappedBy = "courseId")
     private Set<Enrollment> enrollmentSet;
+    private String image;
 
     public Course() {
     }
@@ -186,5 +187,19 @@ public class Course implements Serializable {
     public String toString() {
         return "com.pdh.pojo.Course[ id=" + id + " ]";
     }
-    
+
+    /**
+     * @return the image
+     */
+    public String getImage() {
+        return image;
+    }
+
+    /**
+     * @param image the image to set
+     */
+    public void setImage(String image) {
+        this.image = image;
+    }
+
 }
