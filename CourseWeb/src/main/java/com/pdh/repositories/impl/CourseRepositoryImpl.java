@@ -5,6 +5,7 @@
 package com.pdh.repositories.impl;
 
 import com.pdh.pojo.Course;
+import com.pdh.repositories.CourseRepository;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -17,20 +18,22 @@ import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author duchi
  */
 @Repository
-public class CourseRepositoryImpl {
+@Transactional
+public class CourseRepositoryImpl implements CourseRepository{
 
     private static final int PAGE_SIZE = 8;
     @Autowired
     private LocalSessionFactoryBean factory;
 
     public List<Course> getCourses(Map<String, String> params) {
-        Session s = this.factory.getObject().openSession();
+        Session s = this.factory.getObject().getCurrentSession();
         CriteriaBuilder b = s.getCriteriaBuilder();
         CriteriaQuery<Course> query = b.createQuery(Course.class);
         Root root = query.from(Course.class);

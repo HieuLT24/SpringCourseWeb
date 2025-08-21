@@ -6,10 +6,14 @@ package com.pdh.controllers;
 
 import com.pdh.repositories.impl.CategoryRepositoryImpl;
 import com.pdh.repositories.impl.CourseRepositoryImpl;
+import com.pdh.services.CategoryServices;
+import com.pdh.services.impl.CourseServicesImpl;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -18,19 +22,24 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @author duchi
  */
 @Controller
+@ControllerAdvice   
 public class IndexController {
 
     @Autowired
-    private CourseRepositoryImpl course;
-    
+    private CourseServicesImpl courseService;
+
     @Autowired
-    private CategoryRepositoryImpl cate;
+    private CategoryServices cateService;
+
+    @ModelAttribute
+    public void commonResponse(Model model) {
+        model.addAttribute("categories", cateService.getCates());
+    }
 
     @RequestMapping("/")
-    public String index(Model model, @RequestParam Map<String,String> params) {
-        
-        model.addAttribute("courses", course.getCourses(params));
-        model.addAttribute("categories", cate.getCates());
+    public String index(Model model, @RequestParam Map<String, String> params) {
+
+        model.addAttribute("courses", courseService.getCourses(params));
         return "index";
     }
 

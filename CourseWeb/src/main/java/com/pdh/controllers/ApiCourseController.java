@@ -5,6 +5,7 @@
 package com.pdh.controllers;
 
 import com.pdh.repositories.impl.CourseRepositoryImpl;
+import com.pdh.services.CourseServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,12 +22,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class ApiCourseController {
     @Autowired
-    private CourseRepositoryImpl courseRepo;    
+    private CourseServices courseService;    
     
     
     @DeleteMapping("/courses/{courseId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable(value="courseId") int id){
-        this.courseRepo.deleteCourse(id);
+        this.courseService.deleteCourse(id);
     }
 }

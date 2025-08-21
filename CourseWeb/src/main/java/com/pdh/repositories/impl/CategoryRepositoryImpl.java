@@ -5,33 +5,36 @@
 package com.pdh.repositories.impl;
 
 import com.pdh.pojo.Category;
+import com.pdh.repositories.CategoryRepository;
 import jakarta.persistence.Query;
 import java.util.List;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author duchi
  */
 @Repository
-public class CategoryRepositoryImpl {
+@Transactional
+public class CategoryRepositoryImpl implements CategoryRepository{
 
     @Autowired
     private LocalSessionFactoryBean factory;
 
     public List<Category> getCates() {
-        try (Session s = this.factory.getObject().openSession()) {
+        Session s = this.factory.getObject().getCurrentSession();
             Query q = s.createQuery("From Category", Category.class);
             return q.getResultList();
-        }
+        
     }
 
     public Category getCateById(int id) {
-        try (Session s = this.factory.getObject().openSession()) {
+        Session s = this.factory.getObject().getCurrentSession();
             return s.find(Category.class, id);
-        }
+        
     }
 }

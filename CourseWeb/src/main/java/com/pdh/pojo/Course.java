@@ -14,10 +14,12 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Set;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -67,7 +69,10 @@ public class Course implements Serializable {
     @OneToMany(mappedBy = "courseId")
     private Set<Enrollment> enrollmentSet;
     private String image;
-
+    
+    @Transient
+    private MultipartFile file;
+    
     public Course() {
     }
 
@@ -200,6 +205,20 @@ public class Course implements Serializable {
      */
     public void setImage(String image) {
         this.image = image;
+    }
+
+    /**
+     * @return the file
+     */
+    public MultipartFile getFile() {
+        return file;
+    }
+
+    /**
+     * @param file the file to set
+     */
+    public void setFile(MultipartFile file) {
+        this.file = file;
     }
 
 }
