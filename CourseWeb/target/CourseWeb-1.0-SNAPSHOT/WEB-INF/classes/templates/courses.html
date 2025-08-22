@@ -1,14 +1,15 @@
 
-<!doctype html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-    <head>
-    <th:object th:replace="base :: bt"></th:object>
+<head>
+    <th:object th:replace="base :: head"></th:object>
 </head>
-<body>
-    <div th:replace="base :: menu"></div>
+<body class="main-wrapper">
+    <div th:replace="base :: navbar"></div>
 
-    <main class="container">
-        <h1 class="text-center text-info mt-2">QUẢN LÝ KHÓA HỌC</h1>
+    <div class="content-wrapper">
+        <div class="container">
+            <h1 class="text-center text-info mt-2">QUẢN LÝ KHÓA HỌC</h1>
         <form method="post" th:object="${course}" th:action="@{/courses}" enctype="multipart/form-data">
             <div class="form-floating mb-3 mt-3">
                 <input type="text" class="form-control" id="title" th:field="*{title}" placeholder="Tên sản phẩm">
@@ -29,7 +30,7 @@
                 <label for="price">Ảnh sản phẩm</label>
             </div>
             <div class="form-floating mb-3 mt-3" th:if="${course.image != null}">
-                <img th:src="${course.image}" width="200" />
+                <img th:src="${course.image}" alt="Course Image" class="course-image-preview" />
             </div>
             <div class="form-floating mb-3 mt-3">
                 <input type="hidden" th:field="*{id}" />
@@ -38,7 +39,8 @@
                 <button  class="btn btn-success" th:unless="${course.id == null}">Cập nhật sản phẩm</button>
             </div>
         </form>
-    </main>
+        </div>
+    </div>
     <div th:replace="base :: footer"></div>    
     <script th:src="@{/js/main.js}"></script>
 </body>

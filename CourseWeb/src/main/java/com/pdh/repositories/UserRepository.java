@@ -12,4 +12,5 @@ import com.pdh.pojo.User;
  */
 public interface UserRepository {
     public User getUserByUsername(String username);
+    public void createOrUpdateUser(User user);
 }

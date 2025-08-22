@@ -1,15 +1,13 @@
-//truy vấn phức hợp trong BTL
-
-
-<!doctype html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-    <head>
-    <th:object th:replace="base :: bt"></th:object>
+<head>
+    <th:object th:replace="base :: head"></th:object>
 </head>
-<body>
-    <div th:replace="base :: menu"></div>
+<body class="main-wrapper">
+    <div th:replace="base :: navbar"></div>
 
-    <main class="container">
+    <div class="content-wrapper">
+        <div class="container">
         <h1 class="text-center text-info mt-2">THỐNG KÊ BÁO CÁO</h1>
         <div class="row">
             <div class="col-6">
@@ -65,5 +63,8 @@
 
         }
     </script>
+        </div>
+    </div>
+    <div th:replace="base :: footer"></div>
 </body>
 </html>

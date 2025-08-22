@@ -16,6 +16,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import java.io.IOException;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
@@ -49,14 +50,32 @@ public class SpringSecurityConfigs {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws
             Exception {
-        http.csrf(c -> c.disable()).authorizeHttpRequests(requests
-                -> requests.requestMatchers("/", "/home", "/courses/**", "/stats").authenticated())
-                .formLogin(form -> form.loginPage("/login")
+        http.csrf(c -> c.disable())
+            .authorizeHttpRequests(requests -> requests
+                .requestMatchers("/", "/home", "/login","/courses/**", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/courses/**").hasRole("ADMIN")
+                .requestMatchers("/api/enroll/**").authenticated() // API đăng ký khóa học
+                .requestMatchers("/stats").hasRole("ADMIN") // Backward compatibility
+                .anyRequest().authenticated())
+            .formLogin(form -> form.loginPage("/login")
                 .loginProcessingUrl("/login")
-                .defaultSuccessUrl("/", true)
+                .successHandler((request, response, authentication) -> {
+                    try {
+                        String contextPath = request.getContextPath();
+                        if (authentication.getAuthorities().stream()
+                            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+                            response.sendRedirect(contextPath + "/admin");
+                        } else {
+                            response.sendRedirect(contextPath + "/");
+                        }
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
                 .failureUrl("/login?error=true").permitAll())
-                .logout(logout
-                        -> logout.logoutSuccessUrl("/login").permitAll());
+            .logout(logout
+                -> logout.logoutSuccessUrl("/login").permitAll());
         return http.build();
     }
     

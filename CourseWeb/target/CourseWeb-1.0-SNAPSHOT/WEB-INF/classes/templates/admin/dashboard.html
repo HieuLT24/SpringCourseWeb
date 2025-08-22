@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - CourseWeb</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link th:href="@{/css/main.css}" rel="stylesheet">
+    <link th:href="@{/css/admin.css}" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Dashboard specific styles -->
+    <style>
+        /* Dashboard specific overrides hoặc animations nếu cần */
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 sidebar text-white p-4">
+                <h3 class="mb-4">
+                    <i class="fas fa-graduation-cap me-2"></i>CourseWeb Admin
+                </h3>
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white active" th:href="@{/admin}">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" th:href="@{/admin/courses}">
+                            <i class="fas fa-book me-2"></i>Quản lý khóa học
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" th:href="@{/admin/stats}">
+                            <i class="fas fa-chart-bar me-2"></i>Thống kê
+                        </a>
+                    </li>
+                    <hr class="my-3" style="border-color: rgba(255,255,255,0.2);">
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" th:href="@{/}" target="_blank">
+                            <i class="fas fa-external-link-alt me-2"></i>Xem trang chủ
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" th:href="@{/logout}">
+                            <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9 p-4">
+                <h1 class="mb-4">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </h1>
+                
+                <!-- Statistics Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card stat-card text-center">
+                            <div class="card-body">
+                                <i class="fas fa-book fa-2x mb-3" style="color: var(--admin-primary);"></i>
+                                <h3 class="stat-number" th:text="${courses.size()}">0</h3>
+                                <p class="text-muted">Tổng khóa học</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stat-card text-center">
+                            <div class="card-body">
+                                <i class="fas fa-tags fa-2x mb-3" style="color: #28a745;"></i>
+                                <h3 class="stat-number" th:text="${categories.size()}">0</h3>
+                                <p class="text-muted">Danh mục</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stat-card text-center">
+                            <div class="card-body">
+                                <i class="fas fa-users fa-2x mb-3" style="color: #17a2b8;"></i>
+                                <h3 class="stat-number">24</h3>
+                                <p class="text-muted">Học viên</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stat-card text-center">
+                            <div class="card-body">
+                                <i class="fas fa-chart-line fa-2x mb-3" style="color: #ffc107;"></i>
+                                <h3 class="stat-number">98%</h3>
+                                <p class="text-muted">Tỷ lệ hài lòng</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="row">
+                    <div class="col-lg-8 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title mb-4">
+                                    <i class="fas fa-bolt me-2"></i>Thao tác nhanh
+                                </h5>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <a th:href="@{/admin/courses/new}" class="btn btn-primary w-100">
+                                            <i class="fas fa-plus me-2"></i>Thêm khóa học mới
+                                        </a>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <a th:href="@{/admin/courses}" class="btn btn-outline-primary w-100">
+                                            <i class="fas fa-book me-2"></i>Quản lý khóa học
+                                        </a>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <a th:href="@{/admin/stats}" class="btn btn-outline-warning w-100">
+                                            <i class="fas fa-chart-bar me-2"></i>Xem thống kê
+                                        </a>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <a th:href="@{/}" class="btn btn-outline-info w-100" target="_blank">
+                                            <i class="fas fa-external-link-alt me-2"></i>Xem trang chủ
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Courses -->
+                    <div class="col-lg-4 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title mb-4">
+                                    <i class="fas fa-clock me-2"></i>Khóa học gần đây
+                                </h5>
+                                
+                                <div th:if="${!courses.empty}">
+                                    <div th:each="course, iterStat : ${courses}" th:if="${iterStat.index < 5}" 
+                                         class="d-flex align-items-center mb-3 p-2 rounded" style="background: #f8f9fa;">
+                                        <img th:src="${course.image}" alt="Course" class="course-image-thumbnail me-3">
+                                        <div>
+                                            <h6 class="mb-1" th:text="${course.title}">Tên khóa học</h6>
+                                            <small class="text-muted" th:text="${course.price} + ' VNĐ'">Giá</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div th:if="${courses.empty}" class="text-center text-muted py-3">
+                                    <i class="fas fa-inbox fa-2x mb-2"></i>
+                                    <p>Chưa có khóa học nào</p>
+                                    <a th:href="@{/admin/courses/new}" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-plus me-1"></i>Thêm ngay
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Revenue Chart -->
+                <div class="row" th:if="${revenues != null and !revenues.empty}">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title mb-4">
+                                    <i class="fas fa-chart-line me-2"></i>Thống kê doanh thu
+                                </h5>
+                                <canvas id="revenueChart" width="400" height="100"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script th:if="${revenues != null and !revenues.empty}">
+        // Revenue Chart
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [/*[[${revenues}]]*/ ].map(item => item[1]),
+                datasets: [{
+                    label: 'Doanh thu (VNĐ)',
+                    data: [/*[[${revenues}]]*/ ].map(item => item[0]),
+                    backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 1,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true
+                    },
+                    title: {
+                        display: true,
+                        text: 'Doanh thu theo khóa học'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString() + ' VNĐ';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

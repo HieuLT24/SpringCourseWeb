@@ -30,7 +30,21 @@ public class UserRepositoryImpl implements UserRepository{
         Query q = s.createNamedQuery("User.findByUsername", User.class);
         q.setParameter("username", username);
         
-        return (User) q.getSingleResult();
+        try {
+            return (User) q.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    @Override
+    public void createOrUpdateUser(User user) {
+        Session s = this.factory.getObject().getCurrentSession();
+        if (user.getId() != null) {
+            s.merge(user);
+        } else {
+            s.persist(user);
+        }
     }
     
 }

@@ -8,6 +8,7 @@ com\pdh\controllers\StatsController.class
 com\pdh\pojo\Answer.class
 com\pdh\pojo\Post.class
 com\pdh\services\CategoryServices.class
+com\pdh\services\EnrollmentServices.class
 com\pdh\pojo\Lecture.class
 com\pdh\pojo\Enrollment.class
 com\pdh\services\impl\UserServicesImpl.class
@@ -25,9 +26,12 @@ com\pdh\pojo\Forum.class
 com\pdh\controllers\CourseController.class
 com\pdh\courseweb\resources\JakartaEE11Resource.class
 com\pdh\services\UserServices.class
+com\pdh\repositories\EnrollmentRepository.class
 com\pdh\configs\SecurityWebApplicationInitializer.class
+com\pdh\controllers\EnrollmentController.class
 com\pdh\controllers\IndexController.class
 com\pdh\services\impl\CategoryServicesImpl.class
+com\pdh\controllers\AdminController.class
 com\pdh\pojo\User.class
 com\pdh\controllers\ApiCourseController.class
 com\pdh\formatters\CategoryFormatter.class
@@ -36,6 +40,8 @@ com\pdh\configs\ThymeleafConfig.class
 com\pdh\repositories\impl\CourseRepositoryImpl.class
 com\pdh\services\CourseServices.class
 com\pdh\pojo\Exam.class
+com\pdh\services\impl\EnrollmentServicesImpl.class
 com\pdh\repositories\UserRepository.class
 com\pdh\configs\DispatcherServletInit.class
 com\pdh\pojo\Payment.class
+com\pdh\repositories\impl\EnrollmentRepositoryImpl.class

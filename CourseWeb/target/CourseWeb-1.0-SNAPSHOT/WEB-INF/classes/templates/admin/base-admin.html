@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+<head>
+    <th:object th:fragment="admin-head">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title th:text="${pageTitle} ?: 'Admin Dashboard - CourseWeb'">Admin Dashboard</title>
+        
+        <!-- Bootstrap 5 -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+        
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        
+        <!-- Google Fonts -->
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        
+        <!-- Chart.js -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        
+        <!-- Custom Admin CSS -->
+        <style>
+            :root {
+                --admin-primary: #667eea;
+                --admin-secondary: #764ba2;
+                --admin-success: #28a745;
+                --admin-warning: #ffc107;
+                --admin-danger: #dc3545;
+                --admin-info: #17a2b8;
+                --admin-dark: #2c3e50;
+                --admin-light: #f8f9fa;
+                --sidebar-width: 280px;
+                --topbar-height: 70px;
+                --border-radius: 12px;
+                --shadow: 0 4px 20px rgba(0,0,0,0.1);
+                --shadow-hover: 0 8px 30px rgba(0,0,0,0.15);
+                --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            body {
+                font-family: 'Inter', sans-serif;
+                background: #f5f6fa;
+                color: var(--admin-dark);
+                overflow-x: hidden;
+            }
+            
+            /* Sidebar Styles */
+            .admin-sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: var(--sidebar-width);
+                height: 100vh;
+                background: linear-gradient(180deg, var(--admin-primary) 0%, var(--admin-secondary) 100%);
+                box-shadow: var(--shadow);
+                z-index: 1000;
+                transform: translateX(-100%);
+                transition: var(--transition);
+            }
+            
+            .admin-sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .sidebar-header {
+                padding: 1.5rem;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+            
+            .sidebar-brand {
+                color: white;
+                text-decoration: none;
+                font-size: 1.5rem;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+            }
+            
+            .sidebar-brand:hover {
+                color: white;
+            }
+            
+            .sidebar-menu {
+                padding: 1rem 0;
+            }
+            
+            .menu-item {
+                margin-bottom: 0.5rem;
+            }
+            
+            .menu-link {
+                display: flex;
+                align-items: center;
+                padding: 0.75rem 1.5rem;
+                color: rgba(255,255,255,0.8);
+                text-decoration: none;
+                transition: var(--transition);
+                border-left: 3px solid transparent;
+            }
+            
+            .menu-link:hover {
+                color: white;
+                background: rgba(255,255,255,0.1);
+                border-left-color: white;
+            }
+            
+            .menu-link.active {
+                color: white;
+                background: rgba(255,255,255,0.15);
+                border-left-color: white;
+            }
+            
+            .menu-link i {
+                width: 20px;
+                margin-right: 0.75rem;
+                text-align: center;
+            }
+            
+            /* Main Content */
+            .admin-content {
+                margin-left: 0;
+                min-height: 100vh;
+                transition: var(--transition);
+            }
+            
+            .admin-content.sidebar-open {
+                margin-left: var(--sidebar-width);
+            }
+            
+            /* Topbar */
+            .admin-topbar {
+                height: var(--topbar-height);
+                background: white;
+                box-shadow: var(--shadow);
+                display: flex;
+                align-items: center;
+                padding: 0 1.5rem;
+                position: sticky;
+                top: 0;
+                z-index: 999;
+            }
+            
+            .sidebar-toggle {
+                background: none;
+                border: none;
+                font-size: 1.2rem;
+                color: var(--admin-dark);
+                cursor: pointer;
+                margin-right: 1rem;
+            }
+            
+            .topbar-title {
+                font-size: 1.25rem;
+                font-weight: 600;
+                color: var(--admin-dark);
+                margin: 0;
+            }
+            
+            .topbar-actions {
+                margin-left: auto;
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+            
+            /* Content Area */
+            .admin-main {
+                padding: 2rem;
+            }
+            
+            /* Cards */
+            .admin-card {
+                background: white;
+                border-radius: var(--border-radius);
+                box-shadow: var(--shadow);
+                border: none;
+                transition: var(--transition);
+            }
+            
+            .admin-card:hover {
+                box-shadow: var(--shadow-hover);
+                transform: translateY(-2px);
+            }
+            
+            /* Buttons */
+            .btn-admin-primary {
+                background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-secondary) 100%);
+                border: none;
+                border-radius: var(--border-radius);
+                color: white;
+                font-weight: 500;
+                transition: var(--transition);
+            }
+            
+            .btn-admin-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-hover);
+                color: white;
+            }
+            
+            /* Responsive */
+            @media (max-width: 768px) {
+                .admin-content.sidebar-open {
+                    margin-left: 0;
+                }
+                
+                .admin-sidebar {
+                    width: 100%;
+                }
+            }
+            
+            @media (min-width: 992px) {
+                .admin-sidebar {
+                    transform: translateX(0);
+                }
+                
+                .admin-content {
+                    margin-left: var(--sidebar-width);
+                }
+                
+                .sidebar-toggle {
+                    display: none;
+                }
+            }
+        </style>
+        
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    </th:object>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <nav th:fragment="admin-sidebar" class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-header">
+            <a href="#" class="sidebar-brand" th:href="@{/admin}">
+                <i class="fas fa-graduation-cap me-2"></i>
+                CourseWeb Admin
+            </a>
+        </div>
+        
+        <div class="sidebar-menu">
+            <div class="menu-item">
+                <a th:href="@{/admin}" class="menu-link" th:classappend="${#request.requestURI == '/CourseWeb/admin' ? 'active' : ''}">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+            </div>
+            
+            <div class="menu-item">
+                <a th:href="@{/admin/courses}" class="menu-link" th:classappend="${#strings.contains(#request.requestURI, '/admin/courses') ? 'active' : ''}">
+                    <i class="fas fa-book"></i>
+                    Quản lý khóa học
+                </a>
+            </div>
+            
+            <div class="menu-item">
+                <a th:href="@{/admin/stats}" class="menu-link" th:classappend="${#strings.contains(#request.requestURI, '/admin/stats') ? 'active' : ''}">
+                    <i class="fas fa-chart-bar"></i>
+                    Thống kê
+                </a>
+            </div>
+            
+            <hr class="my-3" style="border-color: rgba(255,255,255,0.1);">
+            
+            <div class="menu-item">
+                <a th:href="@{/}" class="menu-link" target="_blank">
+                    <i class="fas fa-external-link-alt"></i>
+                    Xem trang chủ
+                </a>
+            </div>
+            
+            <div class="menu-item">
+                <a th:href="@{/logout}" class="menu-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Đăng xuất
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div th:fragment="admin-layout" class="admin-content" id="adminContent">
+        <!-- Topbar -->
+        <div class="admin-topbar">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <h1 class="topbar-title" th:text="${pageTitle} ?: 'Dashboard'">Dashboard</h1>
+            
+            <div class="topbar-actions">
+                <div class="dropdown">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-1"></i>
+                        Admin
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" th:href="@{/}">
+                            <i class="fas fa-home me-2"></i>Trang chủ
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" th:href="@{/logout}">
+                            <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="admin-main">
+            <!-- Content will be inserted here -->
+        </div>
+    </div>
+    
+    <!-- Admin JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('adminSidebar');
+            const content = document.getElementById('adminContent');
+            const toggle = document.getElementById('sidebarToggle');
+            
+            if (toggle) {
+                toggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    content.classList.toggle('sidebar-open');
+                });
+            }
+            
+            // Auto-activate sidebar on desktop
+            if (window.innerWidth >= 992) {
+                sidebar.classList.add('active');
+                content.classList.add('sidebar-open');
+            }
+            
+            // Handle resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 992) {
+                    sidebar.classList.add('active');
+                    content.classList.add('sidebar-open');
+                } else {
+                    sidebar.classList.remove('active');
+                    content.classList.remove('sidebar-open');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

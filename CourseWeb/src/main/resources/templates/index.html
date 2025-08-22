@@ -1,58 +1,179 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-    <head>
-    <th:object th:replace="base :: bt"></th:object>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <th:object th:replace="base :: head"></th:object>
+    <!-- Page-specific styles -->
+    <style>
+        /* Index page specific styles */
+        .course-image {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            object-position: center;
+            background: var(--light-color);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+        
+        .course-card:hover .course-image {
+            transform: scale(1.05);
+        }
+    </style>
 </head>
-<body>
-    <div th:replace="base :: menu"></div>
+<body class="main-wrapper">
+    <div th:replace="base :: navbar"></div>
 
-    <main class="container">
-        <form th:action="@{/}">
-
-            <div class="mb-3 mt-3">
-                <input type="text" class="form-control" placeholder="Tìm theo tên" name="kw">
-            </div>
-            <div class="row mb-3 mt-3">
-                <div  class="col-6">
-                    <input type="number" class="form-control" placeholder="Từ giá" name="fromPrice">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">
+                        Học trực tuyến <br>
+                        <span class="text-warning">dễ dàng hơn</span>
+                    </h1>
+                    <p class="lead mb-4">Khám phá hàng nghìn khóa học chất lượng cao từ các chuyên gia hàng đầu. Học mọi lúc, mọi nơi với CourseWeb.</p>
+                    <div class="d-flex gap-3">
+                        <a href="#courses" class="btn btn-light btn-lg btn-modern">
+                            <i class="fas fa-play me-2"></i>Bắt đầu học
+                        </a>
+                        <a href="#" class="btn btn-outline-light btn-lg btn-modern">
+                            <i class="fas fa-info-circle me-2"></i>Tìm hiểu thêm
+                        </a>
+                    </div>
                 </div>
-                <div  class="col-6">
-                    <input type="number" class="form-control" placeholder="Đến giá" name="toPrice">
+                <div class="col-lg-6 text-center">
+                    <i class="fas fa-graduation-cap" style="font-size: 15rem; opacity: 0.1;"></i>
                 </div>
             </div>
-            <div class="mb-3 mt-3">
-                <button class="btn btn-info">Tìm sản phẩm</button>
-            </div>
-        </form>
-        <div class="mt-2 mb-2">
-            <a th:href="@{/courses}" class="btn btn-info">Thêm sản phẩm</a>
         </div>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>ID</th>
-                    <th>Tên sản phẩm</th>
-                    <th>Gía bán</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="course : ${courses}">
-                    <td>
-                        <img th:src="${course.image}" width="200"/>
-                    </td>
-                    <td th:text="${course.id}"></td>
-                    <td th:text="${course.title}"></td>
-                    <td th:text="${course.price} + ' VNĐ'"></td>
-                    <td>
-                        <a th:href="@{/courses} + '/' + ${course.id}" class="btn btn-success">Cập nhật</a>
-                        <button class="btn btn-danger" th:onclick="'deleteProduct(\'' + @{/api/courses/} + ${course.id} + '\')'">Xóa</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </main>
+    </section>
+    
+    <div class="content-wrapper">
+        <div class="container">
+            <!-- Search Card -->
+            <div class="search-card mb-5">
+                <h4 class="mb-4">
+                    <i class="fas fa-search me-2"></i>Tìm kiếm khóa học
+                </h4>
+                <form th:action="@{/}">
+                    <div class="row">
+                        <div class="col-lg-4 mb-3">
+                            <input type="text" class="form-control" placeholder="Tìm theo tên khóa học..." name="kw">
+                        </div>
+                        <div class="col-lg-3 mb-3">
+                            <input type="number" class="form-control" placeholder="Từ giá" name="fromPrice">
+                        </div>
+                        <div class="col-lg-3 mb-3">
+                            <input type="number" class="form-control" placeholder="Đến giá" name="toPrice">
+                        </div>
+                        <div class="col-lg-2 mb-3">
+                            <button class="btn btn-primary w-100 btn-modern">
+                                <i class="fas fa-search me-1"></i>Tìm kiếm
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Admin Actions -->
+            <div class="admin-actions text-white" sec:authorize="hasRole('ADMIN')">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1">
+                            <i class="fas fa-crown me-2"></i>Chế độ quản trị
+                        </h5>
+                        <p class="mb-0">Bạn đang truy cập với quyền quản trị viên</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a th:href="@{/admin}" class="btn btn-light btn-modern">
+                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        </a>
+                        <a th:href="@{/admin/courses/new}" class="btn btn-outline-light btn-modern">
+                            <i class="fas fa-plus me-1"></i>Thêm khóa học
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!-- Courses Section -->
+            <section id="courses" class="mb-5">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>
+                        <i class="fas fa-book me-2"></i>Khóa học nổi bật
+                    </h2>
+                    <div class="text-muted">
+                        <i class="fas fa-graduation-cap me-1"></i>
+                        <span th:text="${courses.size()}">0</span> khóa học
+                    </div>
+                </div>
+                
+                <div class="row" th:if="${!courses.empty}">
+                    <div class="col-lg-4 col-md-6 mb-4" th:each="course : ${courses}">
+                        <div class="course-card">
+                            <div class="position-relative">
+                                <img th:src="${course.image}" alt="Course Image" class="course-image">
+                                <div class="position-absolute top-0 end-0 m-3">
+                                    <span class="course-price" th:text="${course.price} + ' VNĐ'">Giá</span>
+                                </div>
+                            </div>
+                            
+                            <div class="card-body p-3">
+                                <h5 class="card-title mb-2">
+                                    <a th:href="@{/courses/} + ${course.id}" 
+                                       th:text="${course.title}" 
+                                       class="text-decoration-none text-dark">
+                                        Tên khóa học
+                                    </a>
+                                </h5>
+                                
+                                <p class="card-text text-muted mb-3" th:text="${course.description}">
+                                    Mô tả khóa học...
+                                </p>
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center text-muted">
+                                        <i class="fas fa-user me-1"></i>
+                                        <small th:text="${course.teacherId.name}">Giảng viên</small>
+                                    </div>
+                                    
+                                    <div class="btn-group" role="group">
+                                        <a th:href="@{/courses/} + ${course.id}" 
+                                           class="btn btn-primary btn-sm btn-modern">
+                                            <i class="fas fa-eye me-1"></i>Xem chi tiết
+                                        </a>
+                                        
+                                        <!-- Admin Actions -->
+                                        <div sec:authorize="hasRole('ADMIN')" class="btn-group" role="group">
+                                            <a th:href="@{/admin/courses/} + ${course.id} + '/edit'" 
+                                               class="btn btn-warning btn-sm">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button class="btn btn-danger btn-sm" 
+                                                    th:onclick="'deleteCourse(\'' + @{/api/courses/} + ${course.id} + '\')'">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Empty State -->
+                <div th:if="${courses.empty}" class="text-center py-5">
+                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">Chưa có khóa học nào</h4>
+                    <p class="text-muted">Hãy quay lại sau để khám phá các khóa học mới!</p>
+                    <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/courses/new}" 
+                       class="btn btn-primary btn-modern">
+                        <i class="fas fa-plus me-2"></i>Thêm khóa học đầu tiên
+                    </a>
+                </div>
+            </section>
+        </div>
+    </div>
     <div th:replace="base :: footer"></div>
     <script th:src="@{/js/main.js}"></script>
 </body>

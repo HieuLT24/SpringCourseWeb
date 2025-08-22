@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thống kê - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 bg-primary text-white p-4">
+                <h3><i class="fas fa-graduation-cap me-2"></i>CourseWeb Admin</h3>
+                <ul class="nav flex-column mt-4">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" th:href="@{/admin}">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" th:href="@{/admin/courses}">
+                            <i class="fas fa-book me-2"></i>Quản lý khóa học
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white active" th:href="@{/admin/stats}">
+                            <i class="fas fa-chart-bar me-2"></i>Thống kê
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1><i class="fas fa-chart-bar me-2"></i>Thống kê doanh thu</h1>
+                    <a th:href="@{/admin}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Dashboard
+                    </a>
+                </div>
+
+                <!-- Chart -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">📈 Biểu đồ doanh thu</h5>
+                        <canvas id="revenueChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Revenue Table -->
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">📊 Chi tiết doanh thu theo khóa học</h5>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Khóa học</th>
+                                    <th>Doanh thu (VNĐ)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="revenue : ${revenues}">
+                                    <td th:text="${revenue[1]}">Tên khóa học</td>
+                                    <td>
+                                        <span class="badge bg-success" th:text="${revenue[0]} + ' VNĐ'">Doanh thu</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div th:if="${revenues.empty}" class="text-center py-4">
+                            <p class="text-muted">Chưa có dữ liệu thống kê.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script th:if="${revenues != null and !revenues.empty}">
+        // Revenue Chart
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [/*[[${revenues}]]*/ ].map(item => item[1]),
+                datasets: [{
+                    label: 'Doanh thu (VNĐ)',
+                    data: [/*[[${revenues}]]*/ ].map(item => item[0]),
+                    backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 1,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true
+                    },
+                    title: {
+                        display: true,
+                        text: 'Doanh thu theo khóa học'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString() + ' VNĐ';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

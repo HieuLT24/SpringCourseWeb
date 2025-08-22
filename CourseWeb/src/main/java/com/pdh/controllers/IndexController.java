@@ -4,8 +4,7 @@
  */
 package com.pdh.controllers;
 
-import com.pdh.repositories.impl.CategoryRepositoryImpl;
-import com.pdh.repositories.impl.CourseRepositoryImpl;
+
 import com.pdh.services.CategoryServices;
 import com.pdh.services.impl.CourseServicesImpl;
 import java.util.Map;
@@ -22,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @author duchi
  */
 @Controller
-@ControllerAdvice   
+@ControllerAdvice
 public class IndexController {
 
     @Autowired

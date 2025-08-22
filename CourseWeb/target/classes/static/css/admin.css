@@ -1,0 +1,290 @@
+/* ===================================
+   CourseWeb - Admin CSS
+   Chứa styles riêng cho admin dashboard
+   =================================== */
+
+/* Admin CSS Variables */
+:root {
+    --admin-primary: #667eea;
+    --admin-secondary: #764ba2;
+    --admin-success: #28a745;
+    --admin-warning: #ffc107;
+    --admin-danger: #dc3545;
+    --admin-info: #17a2b8;
+    --admin-dark: #2c3e50;
+    --admin-light: #f8f9fa;
+    --sidebar-width: 280px;
+    --topbar-height: 70px;
+}
+
+/* Sidebar Styles */
+.admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: linear-gradient(180deg, var(--admin-primary) 0%, var(--admin-secondary) 100%);
+    box-shadow: var(--shadow);
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: var(--transition);
+}
+
+.admin-sidebar.active {
+    transform: translateX(0);
+}
+
+.sidebar-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar-brand {
+    color: white;
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-brand:hover {
+    color: white;
+}
+
+.sidebar-menu {
+    padding: 1rem 0;
+}
+
+.menu-item {
+    margin-bottom: 0.5rem;
+}
+
+.menu-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    transition: var(--transition);
+    border-left: 3px solid transparent;
+}
+
+.menu-link:hover {
+    color: white;
+    background: rgba(255,255,255,0.1);
+    border-left-color: white;
+}
+
+.menu-link.active {
+    color: white;
+    background: rgba(255,255,255,0.15);
+    border-left-color: white;
+}
+
+.menu-link i {
+    width: 20px;
+    margin-right: 0.75rem;
+    text-align: center;
+}
+
+/* Main Content */
+.admin-content {
+    margin-left: 0;
+    min-height: 100vh;
+    transition: var(--transition);
+}
+
+.admin-content.sidebar-open {
+    margin-left: var(--sidebar-width);
+}
+
+/* Topbar */
+.admin-topbar {
+    height: var(--topbar-height);
+    background: white;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+
+.sidebar-toggle {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--admin-dark);
+    cursor: pointer;
+    margin-right: 1rem;
+}
+
+.topbar-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--admin-dark);
+    margin: 0;
+}
+
+.topbar-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Content Area */
+.admin-main {
+    padding: 2rem;
+}
+
+/* Admin Cards */
+.admin-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    border: none;
+    transition: var(--transition);
+}
+
+.admin-card:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+}
+
+/* Admin Buttons */
+.btn-admin-primary {
+    background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-secondary) 100%);
+    border: none;
+    border-radius: var(--border-radius);
+    color: white;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.btn-admin-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+    color: white;
+}
+
+/* Statistics Cards */
+.stat-card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stat-label {
+    color: var(--muted-color);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Admin Simple Layout (fallback) */
+.sidebar {
+    background: linear-gradient(180deg, var(--admin-primary) 0%, var(--admin-secondary) 100%);
+    min-height: 100vh;
+}
+
+/* Responsive Admin */
+@media (max-width: 768px) {
+    .admin-content.sidebar-open {
+        margin-left: 0;
+    }
+    
+    .admin-sidebar {
+        width: 100%;
+    }
+    
+    .admin-main {
+        padding: 1rem;
+    }
+}
+
+@media (min-width: 992px) {
+    .admin-sidebar {
+        transform: translateX(0);
+    }
+    
+    .admin-content {
+        margin-left: var(--sidebar-width);
+    }
+    
+    .sidebar-toggle {
+        display: none;
+    }
+}
+
+/* Form Enhancements */
+.form-floating > label {
+    font-weight: var(--font-weight-medium);
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* Table Enhancements */
+.table th {
+    font-weight: var(--font-weight-semibold);
+    color: var(--dark-color);
+    border-bottom: 2px solid #e9ecef;
+}
+
+/* Badge Enhancements */
+.badge {
+    font-weight: var(--font-weight-medium);
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--border-radius-sm);
+}
+
+/* Loading States */
+.loading-placeholder {
+    background: #f8f9fa;
+    border-radius: var(--border-radius);
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted-color);
+}
+
+/* Empty States */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--muted-color);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
