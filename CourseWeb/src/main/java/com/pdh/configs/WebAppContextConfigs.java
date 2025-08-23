@@ -25,7 +25,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @ComponentScan(basePackages = {
     "com.pdh.controllers",
     "com.pdh.repositories",
-    "com.pdh.services"
+    "com.pdh.services",
+    "com.pdh.configs",
+    "com.pdh.utils"
 })
 @EnableTransactionManagement
 public class WebAppContextConfigs implements WebMvcConfigurer{

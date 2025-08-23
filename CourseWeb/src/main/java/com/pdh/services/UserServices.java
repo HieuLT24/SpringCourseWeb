@@ -13,5 +13,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
  */
 public interface UserServices extends UserDetailsService {
     User getUserByUsername(String username);
+    User getUserByEmail(String email);
+    boolean isUsernameExists(String username);
+    boolean isEmailExists(String email);
     void createOrUpdateUser(User user);
+    // User registerUser(String name, String email, String username, String password);
 }

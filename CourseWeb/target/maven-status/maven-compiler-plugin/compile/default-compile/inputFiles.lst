@@ -1,5 +1,6 @@
 F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\configs\DispatcherServletInit.java
 F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\configs\HibernateConfigs.java
+F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\configs\MailConfig.java
 F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\configs\SecurityWebApplicationInitializer.java
 F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\configs\SpringSecurityConfigs.java
 F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\configs\ThymeleafConfig.java
@@ -8,6 +9,7 @@ F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\controllers\AdminController.java
 F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\controllers\ApiCourseController.java
 F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\controllers\CourseController.java
 F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\controllers\EnrollmentController.java
+F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\controllers\ForgotPasswordController.java
 F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\controllers\IndexController.java
 F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\controllers\StatsController.java
 F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\controllers\UserController.java
@@ -45,3 +47,4 @@ F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\services\impl\StatsServicesImpl.jav
 F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\services\impl\UserServicesImpl.java
 F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\services\StatsServices.java
 F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\services\UserServices.java
+F:\DoAnNganh\CourseWeb\src\main\java\com\pdh\utils\JwtUtil.java

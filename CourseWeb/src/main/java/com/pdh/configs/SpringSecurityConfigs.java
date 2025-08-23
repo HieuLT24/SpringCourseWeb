@@ -30,7 +30,8 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 @ComponentScan(basePackages = {
     "com.pdh.controllers",
     "com.pdh.repositories",
-    "com.pdh.services"
+    "com.pdh.services",
+    "com.pdh.configs"
 })
 public class SpringSecurityConfigs {
 
@@ -52,7 +53,7 @@ public class SpringSecurityConfigs {
             Exception {
         http.csrf(c -> c.disable())
             .authorizeHttpRequests(requests -> requests
-                .requestMatchers("/", "/home", "/login","/courses/**", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/", "/home", "/login", "/register", "/forgot-password", "/reset-password", "/courses/**", "/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/courses/**").hasRole("ADMIN")
                 .requestMatchers("/api/enroll/**").authenticated() // API đăng ký khóa học

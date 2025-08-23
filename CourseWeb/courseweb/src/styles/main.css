@@ -1,0 +1,276 @@
+/* ===================================
+   CourseWeb - Main CSS
+   Chứa CSS variables, base styles và components chung
+   =================================== */
+
+/* CSS Variables - Design System */
+:root {
+    /* Colors */
+    --primary-color: #667eea;
+    --secondary-color: #764ba2;
+    --accent-color: #f093fb;
+    --success-color: #4facfe;
+    --warning-color: #ffa726;
+    --danger-color: #ff5722;
+    --info-color: #17a2b8;
+    --dark-color: #2c3e50;
+    --light-color: #f8f9fa;
+    --muted-color: #6c757d;
+    
+    /* Spacing */
+    --border-radius: 12px;
+    --border-radius-sm: 8px;
+    --border-radius-lg: 20px;
+    
+    /* Shadows */
+    --shadow: 0 4px 20px rgba(0,0,0,0.1);
+    --shadow-hover: 0 8px 30px rgba(0,0,0,0.15);
+    --shadow-sm: 0 2px 10px rgba(0,0,0,0.08);
+    
+    /* Transitions */
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-fast: all 0.2s ease;
+    --transition-slow: all 0.5s ease;
+    
+    /* Typography */
+    --font-family: 'Inter', sans-serif;
+    --font-weight-light: 300;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+}
+
+/* Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    line-height: 1.6;
+    color: var(--dark-color);
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+}
+
+.main-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.content-wrapper {
+    flex: 1;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+/* Course Image Components */
+.course-image-card {
+    width: 100%;
+    height: 200px;
+    object-fit: contain;
+    object-position: center;
+    border-radius: var(--border-radius);
+    background: var(--light-color);
+    border: 1px solid #e9ecef;
+    transition: var(--transition);
+}
+
+.course-image-thumbnail {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    object-position: center;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid #e9ecef;
+}
+
+.course-image-detail {
+    width: 100%;
+    max-width: 400px;
+    height: 300px;
+    object-fit: contain;
+    object-position: center;
+    border-radius: var(--border-radius);
+    background: var(--light-color);
+    border: 1px solid #e9ecef;
+    box-shadow: var(--shadow);
+}
+
+.course-image-preview {
+    max-width: 200px;
+    height: 150px;
+    object-fit: contain;
+    object-position: center;
+    border-radius: var(--border-radius);
+    background: var(--light-color);
+    border: 1px solid #e9ecef;
+}
+
+/* Card Components */
+.modern-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    border: none;
+    transition: var(--transition);
+    overflow: hidden;
+}
+
+.modern-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+
+.course-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    border: none;
+    overflow: hidden;
+    height: 100%;
+}
+
+.course-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-hover);
+}
+
+.course-card:hover .course-image-card {
+    transform: scale(1.05);
+}
+
+/* Button Components */
+.btn-modern {
+    border-radius: var(--border-radius-lg);
+    font-weight: var(--font-weight-medium);
+    padding: 0.75rem 1.5rem;
+    transition: var(--transition);
+    border: none;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    text-decoration: none;
+}
+
+.btn-gradient-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+}
+
+.btn-gradient-primary:hover {
+    color: white;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.btn-gradient-success {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+}
+
+.btn-gradient-success:hover {
+    color: white;
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+}
+
+.btn-gradient-warning {
+    background: linear-gradient(135deg, var(--warning-color), #fd7e14);
+    color: white;
+}
+
+.btn-gradient-warning:hover {
+    color: white;
+    box-shadow: 0 8px 25px rgba(255, 167, 38, 0.4);
+}
+
+/* Price Tag Component */
+.course-price {
+    background: linear-gradient(135deg, var(--success-color), #20c997);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius-lg);
+    font-weight: var(--font-weight-semibold);
+    font-size: 0.9rem;
+    display: inline-block;
+}
+
+/* Search Card Component */
+.search-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: 2rem;
+    margin-top: -2rem;
+    position: relative;
+    z-index: 10;
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+    padding: 4rem 0;
+    margin-bottom: 3rem;
+}
+
+/* Admin Actions Bar */
+.admin-actions {
+    background: linear-gradient(135deg, var(--warning-color), #fd7e14);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Utility Classes */
+.fw-medium {
+    font-weight: var(--font-weight-medium) !important;
+}
+
+.fw-semibold {
+    font-weight: var(--font-weight-semibold) !important;
+}
+
+.text-gradient-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Responsive Utilities */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 2rem 0;
+    }
+    
+    .search-card {
+        margin-top: 0;
+        padding: 1.5rem;
+    }
+    
+    .course-image-detail {
+        height: 250px;
+    }
+}
+
+@media (max-width: 576px) {
+    .btn-modern {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .course-image-card {
+        height: 180px;
+    }
+}

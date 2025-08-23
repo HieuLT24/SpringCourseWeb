@@ -12,5 +12,8 @@ import com.pdh.pojo.User;
  */
 public interface UserRepository {
     public User getUserByUsername(String username);
+    public User getUserByEmail(String email);
+    public boolean isUsernameExists(String username);
+    public boolean isEmailExists(String email);
     public void createOrUpdateUser(User user);
 }

@@ -38,6 +38,29 @@ public class UserRepositoryImpl implements UserRepository{
     }
     
     @Override
+    public User getUserByEmail(String email) {
+        Session s = this.factory.getObject().getCurrentSession();
+        Query q = s.createNamedQuery("User.findByEmail", User.class);
+        q.setParameter("email", email);
+        
+        try {
+            return (User) q.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    @Override
+    public boolean isUsernameExists(String username) {
+        return this.getUserByUsername(username) != null;
+    }
+    
+    @Override
+    public boolean isEmailExists(String email) {
+        return getUserByEmail(email) != null;   
+    }
+    
+    @Override
     public void createOrUpdateUser(User user) {
         Session s = this.factory.getObject().getCurrentSession();
         if (user.getId() != null) {

@@ -34,6 +34,21 @@ public class UserServicesImpl implements UserServices {
     public User getUserByUsername(String username) {
         return this.userRepo.getUserByUsername(username);
     }
+    
+    @Override
+    public User getUserByEmail(String email) {
+        return this.userRepo.getUserByEmail(email);
+    }
+    
+    @Override
+    public boolean isUsernameExists(String username) {
+        return this.userRepo.isUsernameExists(username);
+    }
+    
+    @Override
+    public boolean isEmailExists(String email) {
+        return this.userRepo.isEmailExists(email);
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -50,9 +65,42 @@ public class UserServicesImpl implements UserServices {
     
     @Override
     public void createOrUpdateUser(User user) {
-        // Mã hóa password trước khi lưu
+        if (user.getId() != null) {
+            if (isUsernameExists(user.getUsername())) {
+                throw new RuntimeException("Tên đăng nhập đã tồn tại");
+            }
+            
+            if (isEmailExists(user.getEmail())){
+                throw new RuntimeException("Email đã tồn tại");
+            }
+        }
+        
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         this.userRepo.createOrUpdateUser(user);
     }
-
+    
+    // @Override
+    // public User createUser(String name, String email, String username, String password) {
+    //     // Kiểm tra username và email đã tồn tại chưa
+    //     if (isUsernameExists(username)) {
+    //         throw new RuntimeException("Tên đăng nhập đã tồn tại");
+    //     }
+        
+    //     if (isEmailExists(email)) {
+    //         throw new RuntimeException("Email đã tồn tại");
+    //     }
+        
+    //     // Tạo user mới
+    //     User newUser = new User();
+    //     newUser.setName(name);
+    //     newUser.setEmail(email);
+    //     newUser.setUsername(username);
+    //     newUser.setPassword(password);
+    //     newUser.setRole("USER"); // Role mặc định
+        
+    //     // Lưu user mới
+    //     createOrUpdateUser(newUser);
+        
+    //     return newUser;
+    // }
 }
