@@ -7,6 +7,9 @@ package com.pdh.services.impl;
 import com.pdh.pojo.Enrollment;
 import com.pdh.repositories.EnrollmentRepository;
 import com.pdh.services.EnrollmentServices;
+
+import jakarta.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,14 +18,16 @@ import org.springframework.stereotype.Service;
  * @author duchi
  */
 @Service
+@Transactional
 public class EnrollmentServicesImpl implements EnrollmentServices {
 
     @Autowired
     private EnrollmentRepository enrollmentRepo;
 
     @Override
-    public void createEnrollment(Enrollment enrollment) {
+    public Enrollment createEnrollment(Enrollment enrollment) {
         this.enrollmentRepo.saveEnrollment(enrollment);
+        return enrollment;
     }
 
     @Override
@@ -34,5 +39,16 @@ public class EnrollmentServicesImpl implements EnrollmentServices {
     @Override
     public Enrollment getEnrollmentByUserAndCourse(int userId, int courseId) {
         return this.enrollmentRepo.getEnrollmentByUserAndCourse(userId, courseId);
+    }
+    
+    @Override
+    public Enrollment updateEnrollment(Enrollment enrollment) {
+        this.enrollmentRepo.updateEnrollment(enrollment);
+        return enrollment;
+    }
+    
+    @Override
+    public void deleteEnrollment(int enrollmentId) {
+        this.enrollmentRepo.deleteEnrollment(enrollmentId);
     }
 }

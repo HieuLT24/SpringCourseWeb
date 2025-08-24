@@ -46,19 +46,26 @@ public class Payment implements Serializable {
     private Integer id;
     @Size(max = 45)
     @Column(name = "method")
-    private String method;
+    private String method; // CARD hoặc QR_CODE
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Column(name = "amount")
     private Double amount;
     @Size(max = 45)
     @Column(name = "status")
-    private String status;
+    private String status; // PENDING, SUCCESS, FAILED
     @Column(name = "time_stamp")
     @Temporal(TemporalType.TIMESTAMP)
     private Date timeStamp;
     @JoinColumn(name = "enrollment_id", referencedColumnName = "id")
     @ManyToOne
     private Enrollment enrollmentId;
+    
+    
+    @Column(name = "transaction_id")
+    private String transactionId;
+    
+    @Column(name = "qr_code_data")
+    private String qrCodeData;
 
     public Payment() {
     }
@@ -113,6 +120,23 @@ public class Payment implements Serializable {
 
     public void setEnrollmentId(Enrollment enrollmentId) {
         this.enrollmentId = enrollmentId;
+    }
+
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public String getQrCodeData() {
+        return qrCodeData;
+    }
+
+    public void setQrCodeData(String qrCodeData) {
+        this.qrCodeData = qrCodeData;
     }
 
     @Override

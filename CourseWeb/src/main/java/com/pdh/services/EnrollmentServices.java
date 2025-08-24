@@ -11,7 +11,9 @@ import com.pdh.pojo.Enrollment;
  * @author duchi
  */
 public interface EnrollmentServices {
-    void createEnrollment(Enrollment enrollment);
+    Enrollment createEnrollment(Enrollment enrollment);
     boolean isUserEnrolled(int userId, int courseId);
     Enrollment getEnrollmentByUserAndCourse(int userId, int courseId);
+    Enrollment updateEnrollment(Enrollment enrollment);
+    void deleteEnrollment(int enrollmentId);
 }

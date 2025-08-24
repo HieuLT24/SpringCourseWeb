@@ -2,6 +2,7 @@ com\pdh\repositories\impl\CategoryRepositoryImpl.class
 com\pdh\services\impl\StatsServicesImpl.class
 com\pdh\courseweb\JakartaRestConfiguration.class
 com\pdh\configs\WebAppContextConfigs.class
+com\pdh\services\impl\PaymentServicesImpl.class
 com\pdh\services\StatsServices.class
 com\pdh\pojo\Course.class
 com\pdh\controllers\StatsController.class
@@ -12,6 +13,7 @@ com\pdh\services\EnrollmentServices.class
 com\pdh\utils\JwtUtil.class
 com\pdh\pojo\Lecture.class
 com\pdh\pojo\Enrollment.class
+com\pdh\repositories\impl\PaymentRepositoryImpl.class
 com\pdh\services\impl\UserServicesImpl.class
 com\pdh\controllers\UserController.class
 com\pdh\repositories\CourseRepository.class
@@ -21,15 +23,19 @@ com\pdh\repositories\impl\UserRepositoryImpl.class
 com\pdh\repositories\CategoryRepository.class
 com\pdh\pojo\Category.class
 com\pdh\repositories\impl\StatsRepositoryImpl.class
+com\pdh\repositories\PaymentRepository.class
 com\pdh\pojo\Question.class
 com\pdh\configs\HibernateConfigs.class
 com\pdh\pojo\Forum.class
 com\pdh\controllers\CourseController.class
 com\pdh\configs\MailConfig.class
 com\pdh\courseweb\resources\JakartaEE11Resource.class
+com\pdh\services\PaymentServices.class
 com\pdh\services\UserServices.class
 com\pdh\controllers\ForgotPasswordController.class
+com\pdh\controllers\PaymentController.class
 com\pdh\repositories\EnrollmentRepository.class
+com\pdh\utils\HmacUtil.class
 com\pdh\configs\SecurityWebApplicationInitializer.class
 com\pdh\controllers\EnrollmentController.class
 com\pdh\controllers\IndexController.class

@@ -48,4 +48,19 @@ public class EnrollmentRepositoryImpl implements EnrollmentRepository {
             return null;
         }
     }
+    
+    @Override
+    public void updateEnrollment(Enrollment enrollment) {
+        Session s = this.factory.getObject().getCurrentSession();
+        s.merge(enrollment);
+    }
+    
+    @Override
+    public void deleteEnrollment(int enrollmentId) {
+        Session s = this.factory.getObject().getCurrentSession();
+        Enrollment enrollment = s.get(Enrollment.class, enrollmentId);
+        if (enrollment != null) {
+            s.remove(enrollment);
+        }
+    }
 }

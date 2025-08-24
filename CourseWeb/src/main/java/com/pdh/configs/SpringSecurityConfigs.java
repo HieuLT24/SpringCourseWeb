@@ -53,7 +53,7 @@ public class SpringSecurityConfigs {
             Exception {
         http.csrf(c -> c.disable())
             .authorizeHttpRequests(requests -> requests
-                .requestMatchers("/", "/home", "/login", "/register", "/forgot-password", "/reset-password", "/courses/**", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/", "/home", "/login", "/register", "/forgot-password", "/reset-password", "/courses/**","/api/payment/callback/momo", "/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/courses/**").hasRole("ADMIN")
                 .requestMatchers("/api/enroll/**").authenticated() // API đăng ký khóa học

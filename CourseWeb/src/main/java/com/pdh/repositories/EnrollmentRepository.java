@@ -13,4 +13,6 @@ import com.pdh.pojo.Enrollment;
 public interface EnrollmentRepository {
     void saveEnrollment(Enrollment enrollment);
     Enrollment getEnrollmentByUserAndCourse(int userId, int courseId);
+    void updateEnrollment(Enrollment enrollment);
+    void deleteEnrollment(int enrollmentId);
 }
