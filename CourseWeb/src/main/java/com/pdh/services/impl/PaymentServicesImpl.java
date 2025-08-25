@@ -5,9 +5,7 @@
 package com.pdh.services.impl;
 
 import com.pdh.pojo.Payment;
-import com.pdh.pojo.Enrollment;
 import com.pdh.repositories.PaymentRepository;
-import com.pdh.repositories.EnrollmentRepository;
 import com.pdh.services.PaymentServices;
 import com.pdh.utils.HmacUtil;
 
@@ -31,22 +29,32 @@ import java.util.UUID;
 @PropertySource("classpath:payment-config.properties")
 public class PaymentServicesImpl implements PaymentServices {
     @Value("${momo.accessKey}")
-    private String accessKey;
+    private String momoAccessKey;
 
     @Value("${momo.secretKey}")
-    private String secretKey;
+    private String momoSecretKey;
 
     @Value("${momo.redirectUrl}")
-    private String redirectUrl;
+    private String momoRedirectUrl;
 
     @Value("${momo.ipnUrl}")
-    private String ipnUrl;
+    private String momoIpnUrl;
+
+    @Value("${vnpay.tmnCode}")
+    private String vnpayTmnCode;
+
+    @Value("${vnpay.hashSecret}")
+    private String vnpayHashSecret;
+
+    @Value("${vnpay.url}")
+    private String vnpayUrl;
+
+    @Value("${vnpay.returnUrl}")
+    private String vnpayReturnUrl;
 
     @Autowired
     private PaymentRepository paymentRepository;
 
-    @Autowired
-    private EnrollmentRepository enrollmentRepository;
 
     @Override
     @Transactional
@@ -127,15 +135,15 @@ public class PaymentServicesImpl implements PaymentServices {
     public String createMoMoPaymentUrl(int paymentId, Double amount) {
         try {
             String endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
-            String partnerCode = "MOMO"; // thay bằng mã thật trong sandbox
-            String accessKey = this.accessKey; // thay bằng key thật
-            String secretKey = this.secretKey; // thay bằng key thật
+            String partnerCode = "MOMO";
+            String accessKey = this.momoAccessKey;
+            String secretKey = this.momoSecretKey;
 
             String orderId = String.valueOf(paymentId + "_" + System.currentTimeMillis());
             String requestId = String.valueOf(System.currentTimeMillis());
             String orderInfo = "Thanh toan khoa hoc " + paymentId;
-            String redirectUrl = this.redirectUrl;
-            String ipnUrl = this.ipnUrl;
+            String redirectUrl = this.momoRedirectUrl;
+            String ipnUrl = this.momoIpnUrl;
             String requestType = "captureWallet";
             String extraData = "";
 
@@ -202,14 +210,20 @@ public class PaymentServicesImpl implements PaymentServices {
     @Override
     public String createVNPayPaymentUrl(int paymentId, Double amount) {
         try {
-            String vnp_TmnCode = "TMNCODE"; // do VNPay cấp
-            String vnp_HashSecret = "hashSecret"; // do VNPay cấp
-            String vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-            String vnp_ReturnUrl = "http://localhost:8080/CourseWeb/api/payment/callback/vnpay";
+            String vnp_TmnCode = this.vnpayTmnCode;
+            String vnp_HashSecret = this.vnpayHashSecret;
+            String vnp_Url = this.vnpayUrl;
+            String vnp_ReturnUrl = this.vnpayReturnUrl;
 
             java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat("yyyyMMddHHmmss");
             String vnp_CreateDate = formatter.format(new java.util.Date());
-            String vnp_TxnRef = String.valueOf(System.currentTimeMillis());
+            String vnp_TxnRef = paymentId + "_" + System.currentTimeMillis();
+
+            Payment payment = paymentRepository.getPaymentById(paymentId);
+            if (payment != null) {
+                payment.setTransactionId(vnp_TxnRef);
+                paymentRepository.updatePayment(payment);
+            }
 
             java.util.Map<String, String> params = new java.util.TreeMap<>();
             params.put("vnp_Version", "2.1.0");
@@ -217,7 +231,7 @@ public class PaymentServicesImpl implements PaymentServices {
             params.put("vnp_TmnCode", vnp_TmnCode);
             params.put("vnp_Amount", String.valueOf(amount.longValue() * 100)); // theo xu
             params.put("vnp_CurrCode", "VND");
-            params.put("vnp_TxnRef", vnp_TxnRef);
+            params.put("vnp_TxnRef",  vnp_TxnRef);
             params.put("vnp_OrderInfo", "Thanh toan khoa hoc " + paymentId);
             params.put("vnp_OrderType", "other");
             params.put("vnp_Locale", "vn");
@@ -225,25 +239,36 @@ public class PaymentServicesImpl implements PaymentServices {
             params.put("vnp_IpAddr", "127.0.0.1");
             params.put("vnp_CreateDate", vnp_CreateDate);
 
-            // Build query string
             StringBuilder hashData = new StringBuilder();
             StringBuilder query = new StringBuilder();
-            for (java.util.Iterator<Map.Entry<String, String>> it = params.entrySet().iterator(); it.hasNext();) {
-                java.util.Map.Entry<String, String> entry = it.next();
-                hashData.append(entry.getKey()).append('=').append(entry.getValue());
-                query.append(entry.getKey()).append('=')
-                        .append(java.net.URLEncoder.encode(entry.getValue(), "UTF-8"));
+            java.util.Iterator<Map.Entry<String, String>> it = params.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, String> entry = it.next();
+                String key = entry.getKey();
+                String value = entry.getValue();
+
+                hashData.append(key)
+                        .append('=')
+                        .append(java.net.URLEncoder.encode(value, java.nio.charset.StandardCharsets.US_ASCII.toString()));
+
+                query.append(java.net.URLEncoder.encode(key, java.nio.charset.StandardCharsets.US_ASCII.toString()))
+                     .append('=')
+                     .append(java.net.URLEncoder.encode(value, java.nio.charset.StandardCharsets.US_ASCII.toString()));
+
                 if (it.hasNext()) {
                     hashData.append('&');
                     query.append('&');
                 }
             }
 
+
             // Ký hash HMAC SHA512
             String secureHash = HmacUtil.hmacSHA512(hashData.toString(), vnp_HashSecret);
             query.append("&vnp_SecureHash=").append(secureHash);
 
-            return vnp_Url + "?" + query.toString();
+            String fullUrl = vnp_Url + "?" + query.toString();
+
+            return fullUrl;
 
         } catch (Exception e) {
             throw new RuntimeException("VNPay create payment error: " + e.getMessage(), e);

@@ -7,6 +7,7 @@ package com.pdh.pojo;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Lob;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -64,7 +65,8 @@ public class Payment implements Serializable {
     @Column(name = "transaction_id")
     private String transactionId;
     
-    @Column(name = "qr_code_data")
+    @Lob
+    @Column(name = "qr_code_data", columnDefinition = "TEXT")
     private String qrCodeData;
 
     public Payment() {
