@@ -5,6 +5,8 @@
 package com.pdh.repositories;
 
 import com.pdh.pojo.Enrollment;
+import com.pdh.pojo.Course;
+import java.util.List;
 
 /**
  *
@@ -15,4 +17,5 @@ public interface EnrollmentRepository {
     Enrollment getEnrollmentByUserAndCourse(int userId, int courseId);
     void updateEnrollment(Enrollment enrollment);
     void deleteEnrollment(int enrollmentId);
+    List<Course> getEnrolledCourses(int userId);
 }

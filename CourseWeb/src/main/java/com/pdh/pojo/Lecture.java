@@ -48,6 +48,16 @@ public class Lecture implements Serializable {
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
+    
+    // URL video bài giảng (Cloudinary/S3...)
+    @Size(max = 255)
+    @Column(name = "video_url")
+    private String videoUrl;
+    
+    // URL file tài liệu đính kèm
+    @Size(max = 255)
+    @Column(name = "attachment_url")
+    private String attachmentUrl;
     @JoinColumn(name = "course_id", referencedColumnName = "id")
     @ManyToOne
     private Course courseId;
@@ -89,6 +99,22 @@ public class Lecture implements Serializable {
 
     public void setCourseId(Course courseId) {
         this.courseId = courseId;
+    }
+
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
+    }
+
+    public String getAttachmentUrl() {
+        return attachmentUrl;
+    }
+
+    public void setAttachmentUrl(String attachmentUrl) {
+        this.attachmentUrl = attachmentUrl;
     }
 
     @Override

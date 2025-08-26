@@ -361,8 +361,13 @@
                     <h1 class="display-4 font-weight-bold mb-4" th:text="${course.title}">Tên khóa học</h1>
                     <div class="price-tag" th:text="${course.price} + ' VNĐ'">Giá khóa học</div>
                     <div class="mt-4">
-                        <!-- Nút đăng ký cho user đã đăng nhập -->
-                        <button class="btn enroll-btn" sec:authorize="isAuthenticated()" 
+                        <!-- Nút học khóa học cho user đã đăng ký -->
+                        <a th:if="${isEnrolled}" th:href="@{/learning/course/{courseId}(courseId=${course.id})}" 
+                           class="btn btn-success btn-lg">
+                            🎯 Học khóa học ngay
+                        </a>
+                        <!-- Nút đăng ký cho user đã đăng nhập nhưng chưa đăng ký -->
+                        <button th:unless="${isEnrolled}" class="btn enroll-btn" sec:authorize="isAuthenticated()" 
                                 th:onclick="'showPaymentModal(' + ${course.id} + ', ' + ${course.price} + ')'">
                             🎓 Đăng ký khóa học ngay
                         </button>
@@ -410,8 +415,13 @@
                     </ul>
                     
                     <div class="mt-4 text-center">
-                        <!-- Nút đăng ký lớn -->
-                        <button class="btn enroll-btn w-100" sec:authorize="isAuthenticated()" 
+                        <!-- Nút học khóa học cho user đã đăng ký -->
+                        <a th:if="${isEnrolled}" th:href="@{/learning/course/{courseId}(courseId=${course.id})}" 
+                           class="btn btn-success w-100">
+                            🎯 Học khóa học ngay
+                        </a>
+                        <!-- Nút đăng ký cho user đã đăng nhập nhưng chưa đăng ký -->
+                        <button th:unless="${isEnrolled}" class="btn enroll-btn w-100" sec:authorize="isAuthenticated()" 
                                 th:onclick="'showPaymentModal(' + ${course.id} + ', ' + ${course.price} + ')'">
                             🎓 Đăng ký ngay
                         </button>

@@ -42,7 +42,11 @@ public class Post implements Serializable {
     @NotNull
     @Column(name = "id")
     private Integer id;
-    @Size(max = 45)
+    @Size(max = 255)
+    @Column(name = "title")
+    private String title;
+    
+    @Size(max = 1000)
     @Column(name = "content")
     private String content;
     @Column(name = "created_at")
@@ -60,6 +64,14 @@ public class Post implements Serializable {
 
     public Post(Integer id) {
         this.id = id;
+    }
+    
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public Integer getId() {

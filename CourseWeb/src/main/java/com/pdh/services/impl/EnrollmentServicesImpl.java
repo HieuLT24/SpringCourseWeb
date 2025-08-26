@@ -4,11 +4,14 @@
  */
 package com.pdh.services.impl;
 
+import com.pdh.pojo.Course;
 import com.pdh.pojo.Enrollment;
 import com.pdh.repositories.EnrollmentRepository;
 import com.pdh.services.EnrollmentServices;
 
 import jakarta.transaction.Transactional;
+
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,5 +53,10 @@ public class EnrollmentServicesImpl implements EnrollmentServices {
     @Override
     public void deleteEnrollment(int enrollmentId) {
         this.enrollmentRepo.deleteEnrollment(enrollmentId);
+    }
+
+    @Override
+    public List<Course> getEnrolledCourses(int userId) {
+        return this.enrollmentRepo.getEnrolledCourses(userId);
     }
 }

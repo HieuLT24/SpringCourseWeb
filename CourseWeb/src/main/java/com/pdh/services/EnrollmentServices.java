@@ -4,6 +4,9 @@
  */
 package com.pdh.services;
 
+import java.util.List;
+
+import com.pdh.pojo.Course;
 import com.pdh.pojo.Enrollment;
 
 /**
@@ -16,4 +19,5 @@ public interface EnrollmentServices {
     Enrollment getEnrollmentByUserAndCourse(int userId, int courseId);
     Enrollment updateEnrollment(Enrollment enrollment);
     void deleteEnrollment(int enrollmentId);
+    List<Course> getEnrolledCourses(int userId);
 }

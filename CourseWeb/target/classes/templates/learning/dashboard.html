@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Học khóa học - <span th:text="${course.title}">Tên khóa học</span></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .learning-sidebar {
+            background: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            min-height: 100vh;
+            padding: 0;
+        }
+        
+        .learning-sidebar .nav-link {
+            color: #495057;
+            border-radius: 0;
+            border-left: 3px solid transparent;
+            padding: 12px 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .learning-sidebar .nav-link:hover,
+        .learning-sidebar .nav-link.active {
+            background-color: #e9ecef;
+            border-left-color: #007bff;
+            color: #007bff;
+        }
+        
+        .learning-sidebar .nav-link i {
+            width: 20px;
+            margin-right: 10px;
+        }
+        
+        .learning-content {
+            padding: 30px;
+            background: #fff;
+        }
+        
+        .course-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .lecture-item {
+            background: #fff;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .lecture-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .lecture-item.completed {
+            border-left: 4px solid #28a745;
+        }
+        
+        .lecture-item.completed::before {
+            content: "✓";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .exam-item {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .progress-section {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            border-radius: 5px;
+        }
+        
+        .stats-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .stats-card .number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .stats-card .label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar bên trái -->
+            <div class="col-md-3 col-lg-2 learning-sidebar">
+                <div class="p-3">
+                    <h5 class="text-center mb-4">
+                        <i class="fas fa-graduation-cap text-primary"></i>
+                        <span th:text="${course.title}">Tên khóa học</span>
+                    </h5>
+                </div>
+                
+                <nav class="nav flex-column">
+                    <a class="nav-link active" th:href="@{/learning/course/{courseId}(courseId=${course.id})}">
+                        <i class="fas fa-home"></i> Tổng quan
+                    </a>
+                    <a class="nav-link" th:href="@{/learning/course/{courseId}/lectures(courseId=${course.id})}">
+                        <i class="fas fa-play-circle"></i> Bài giảng
+                    </a>
+                    <a class="nav-link" th:href="@{/learning/course/{courseId}/exams(courseId=${course.id})}">
+                        <i class="fas fa-file-alt"></i> Bài kiểm tra
+                    </a>
+                    <a class="nav-link" th:href="@{/learning/course/{courseId}/forum(courseId=${course.id})}">
+                        <i class="fas fa-comments"></i> Diễn đàn
+                    </a>
+                    <a class="nav-link" th:href="@{/learning/course/{courseId}/notifications(courseId=${course.id})}">
+                        <i class="fas fa-bell"></i> Thông báo
+                    </a>
+                </nav>
+            </div>
+            
+            <!-- Nội dung chính -->
+            <div class="col-md-9 col-lg-10 learning-content">
+                <!-- Header khóa học -->
+                <div class="course-header">
+                    <h2 th:text="${course.title}">Tên khóa học</h2>
+                    <p class="mb-0" th:text="${course.description}">Mô tả khóa học</p>
+                </div>
+                
+                <!-- Phần tổng quan -->
+                <div id="overview-section" class="section-content" th:style="${activeSection}=='overview' ? 'display:block' : 'display:none'">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="stats-card">
+                                <div class="number" th:text="${lectures.size()}">0</div>
+                                <div class="label">Bài giảng</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stats-card">
+                                <div class="number" th:text="${exams.size()}">0</div>
+                                <div class="label">Bài kiểm tra</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stats-card">
+                                <div class="number">0</div>
+                                <div class="label">Đã hoàn thành</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-section">
+                        <h5>Tiến độ học tập</h5>
+                        <div class="progress mb-3">
+                            <div class="progress-bar" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">25%</div>
+                        </div>
+                        <small class="text-muted">Bạn đã hoàn thành 3/12 bài giảng</small>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Mô tả khóa học</h5>
+                            <p th:text="${course.description}">Mô tả chi tiết về khóa học...</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Thông tin giảng viên</h5>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                    <i class="fas fa-user text-white"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0" th:text="${course.teacherId != null ? course.teacherId.getName() : 'Chưa có'}">Tên giảng viên</h6>
+                                    <small class="text-muted">Giảng viên chính</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Phần bài giảng -->
+                <div id="lectures-section" class="section-content" th:style="${activeSection}=='lectures' ? 'display:block' : 'display:none'">
+                    <h4 class="mb-4">
+                        <i class="fas fa-play-circle text-primary me-2"></i>
+                        Danh sách bài giảng
+                    </h4>
+                    
+                    <div class="row">
+                        <div th:each="lecture, iterStat : ${lectures}" class="col-md-6 col-lg-4">
+                            <a class="text-decoration-none text-reset" th:href="@{/learning/course/{courseId}/lecture/{lectureId}(courseId=${course.id}, lectureId=${lecture.id})}">
+                                <div class="lecture-item" th:classappend="${iterStat.index == 0 ? 'completed' : ''}">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                            <i class="fas fa-play text-white"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-1" th:text="'Bài ' + ${iterStat.index + 1}">Bài 1</h6>
+                                            <small class="text-muted" th:text="${lecture.content != null ? lecture.content + '...' : 'Nội dung bài giảng'}">Nội dung bài giảng</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Phần bài kiểm tra -->
+                <div id="exams-section" class="section-content" th:style="${activeSection}=='exams' ? 'display:block' : 'display:none'">
+                    <h4 class="mb-4">
+                        <i class="fas fa-file-alt text-warning me-2"></i>
+                        Bài kiểm tra
+                    </h4>
+                    
+                    <div th:if="${exams.isEmpty()}" class="text-center py-5">
+                        <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Chưa có bài kiểm tra nào</p>
+                    </div>
+                    
+                    <div th:each="exam : ${exams}" class="exam-item">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h6 class="mb-1" th:text="'Bài kiểm tra ' + ${exam.type}">Bài kiểm tra</h6>
+                                <small class="text-muted">Thời gian: 30 phút</small>
+                            </div>
+                            <a th:href="@{/learning/course/{courseId}/exam/{examId}(courseId=${course.id}, examId=${exam.id})}" 
+                               class="btn btn-primary btn-sm">
+                                <i class="fas fa-play me-1"></i> Làm bài
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+</body>
+</html>

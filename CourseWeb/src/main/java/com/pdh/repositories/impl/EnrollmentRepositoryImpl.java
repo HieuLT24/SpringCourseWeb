@@ -4,6 +4,7 @@
  */
 package com.pdh.repositories.impl;
 
+import com.pdh.pojo.Course;
 import com.pdh.pojo.Enrollment;
 import com.pdh.repositories.EnrollmentRepository;
 import org.hibernate.Session;
@@ -62,5 +63,14 @@ public class EnrollmentRepositoryImpl implements EnrollmentRepository {
         if (enrollment != null) {
             s.remove(enrollment);
         }
+    }
+
+    @Override
+    public java.util.List<Course> getEnrolledCourses(int userId) {
+        Session s = this.factory.getObject().getCurrentSession();
+        String hql = "SELECT e.courseId FROM Enrollment e WHERE e.userId.id = :userId";
+        Query<Course> q = s.createQuery(hql, Course.class);
+        q.setParameter("userId", userId);
+        return q.getResultList();
     }
 }

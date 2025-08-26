@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông báo - <span th:text="${course.title}">Tên khóa học</span></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .notifications-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        
+        .notifications-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .back-to-course {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+        
+        .notification-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #3498db;
+            transition: all 0.3s ease;
+        }
+        
+        .notification-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        
+        .notification-card.unread {
+            border-left-color: #e74c3c;
+            background: #fff5f5;
+        }
+        
+        .notification-card.important {
+            border-left-color: #f39c12;
+            background: #fffbf0;
+        }
+        
+        .notification-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            margin-right: 15px;
+        }
+        
+        .notification-icon.info {
+            background: #3498db;
+        }
+        
+        .notification-icon.warning {
+            background: #f39c12;
+        }
+        
+        .notification-icon.success {
+            background: #27ae60;
+        }
+        
+        .notification-icon.error {
+            background: #e74c3c;
+        }
+        
+        .notification-content {
+            flex: 1;
+        }
+        
+        .notification-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .notification-time {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .notification-message {
+            color: #34495e;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .notification-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-sm {
+            padding: 5px 15px;
+            font-size: 0.9rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .filters-section {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .filter-tags {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-tag {
+            background: #ecf0f1;
+            color: #2c3e50;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-tag:hover,
+        .filter-tag.active {
+            background: #3498db;
+            color: white;
+        }
+        
+        .mark-all-read {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Nút quay lại khóa học -->
+    <div class="back-to-course">
+        <a th:href="@{/learning/course/{courseId}(courseId=${course.id})}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Quay lại khóa học
+        </a>
+    </div>
+    
+    <div class="notifications-container">
+        <!-- Header thông báo -->
+        <div class="notifications-header">
+            <h2><i class="fas fa-bell me-3"></i>Thông báo</h2>
+            <p class="mb-0">Khóa học: <span th:text="${course.title}">Tên khóa học</span></p>
+        </div>
+        
+        <!-- Đánh dấu tất cả đã đọc -->
+        <div class="mark-all-read">
+            <button class="btn btn-outline-primary" onclick="markAllAsRead()">
+                <i class="fas fa-check-double me-2"></i>Đánh dấu tất cả đã đọc
+            </button>
+        </div>
+        
+        <!-- Bộ lọc thông báo -->
+        <div class="filters-section">
+            <h6>Lọc thông báo</h6>
+            <div class="filter-tags">
+                <span class="filter-tag active" onclick="filterNotifications('all')">Tất cả</span>
+                <span class="filter-tag" onclick="filterNotifications('unread')">Chưa đọc</span>
+                <span class="filter-tag" onclick="filterNotifications('important')">Quan trọng</span>
+                <span class="filter-tag" onclick="filterNotifications('course')">Khóa học</span>
+                <span class="filter-tag" onclick="filterNotifications('exam')">Bài kiểm tra</span>
+                <span class="filter-tag" onclick="filterNotifications('forum')">Diễn đàn</span>
+            </div>
+        </div>
+        
+        <!-- Danh sách thông báo -->
+        <div id="notifications-list">
+            <!-- Thông báo mới bài giảng -->
+            <div class="notification-card unread" data-type="course" data-category="course">
+                <div class="notification-header">
+                    <div class="d-flex align-items-center">
+                        <div class="notification-icon info">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">Bài giảng mới đã được thêm</div>
+                            <div class="notification-time">2 giờ trước</div>
+                        </div>
+                    </div>
+                    <div class="notification-actions">
+                        <button class="btn btn-sm btn-outline-primary" onclick="markAsRead(this)">
+                            <i class="fas fa-check me-1"></i>Đã đọc
+                        </button>
+                    </div>
+                </div>
+                <div class="notification-message">
+                    Bài giảng "Spring Boot Advanced" đã được thêm vào khóa học. Hãy truy cập để học ngay!
+                </div>
+                <div class="notification-actions">
+                    <a href="#" class="btn btn-sm btn-primary">
+                        <i class="fas fa-play me-1"></i>Xem bài giảng
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Thông báo bài kiểm tra -->
+            <div class="notification-card important" data-type="exam" data-category="exam">
+                <div class="notification-header">
+                    <div class="d-flex align-items-center">
+                        <div class="notification-icon warning">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">Bài kiểm tra sắp đến hạn</div>
+                            <div class="notification-time">1 ngày trước</div>
+                        </div>
+                    </div>
+                    <div class="notification-actions">
+                        <button class="btn btn-sm btn-outline-primary" onclick="markAsRead(this)">
+                            <i class="fas fa-check me-1"></i>Đã đọc
+                        </button>
+                    </div>
+                </div>
+                <div class="notification-message">
+                    Bài kiểm tra "Spring Framework Quiz" sẽ hết hạn vào ngày mai. Hãy hoàn thành sớm!
+                </div>
+                <div class="notification-actions">
+                    <a href="#" class="btn btn-sm btn-warning">
+                        <i class="fas fa-clock me-1"></i>Làm bài ngay
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Thông báo diễn đàn -->
+            <div class="notification-card" data-type="forum" data-category="forum">
+                <div class="notification-header">
+                    <div class="d-flex align-items-center">
+                        <div class="notification-icon success">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">Có bình luận mới trong diễn đàn</div>
+                            <div class="notification-time">3 ngày trước</div>
+                        </div>
+                        <div class="notification-actions">
+                            <button class="btn btn-sm btn-outline-primary" onclick="markAsRead(this)">
+                                <i class="fas fa-check me-1"></i>Đã đọc
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="notification-message">
+                    Bạn có bình luận mới trong bài viết "Cách sử dụng Spring Security". Hãy kiểm tra ngay!
+                </div>
+                <div class="notification-actions">
+                    <a href="#" class="btn btn-sm btn-success">
+                        <i class="fas fa-eye me-1"></i>Xem bình luận
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Thông báo thành tích -->
+            <div class="notification-card" data-type="achievement" data-category="course">
+                <div class="notification-header">
+                    <div class="d-flex align-items-center">
+                        <div class="notification-icon success">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">Chúc mừng! Bạn đã hoàn thành 5 bài giảng</div>
+                            <div class="notification-time">1 tuần trước</div>
+                        </div>
+                        <div class="notification-actions">
+                            <button class="btn btn-sm btn-outline-primary" onclick="markAsRead(this)">
+                                <i class="fas fa-check me-1"></i>Đã đọc
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="notification-message">
+                    Bạn đã hoàn thành 5 bài giảng đầu tiên của khóa học. Tiếp tục phát huy nhé!
+                </div>
+                <div class="notification-actions">
+                    <a href="#" class="btn btn-sm btn-info">
+                        <i class="fas fa-chart-line me-1"></i>Xem tiến độ
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Trạng thái trống -->
+        <div id="empty-state" class="empty-state" style="display: none;">
+            <i class="fas fa-bell-slash"></i>
+            <h4>Không có thông báo nào</h4>
+            <p>Tất cả thông báo đã được xem hoặc không có thông báo mới.</p>
+        </div>
+        
+        <!-- Phân trang -->
+        <div class="text-center mt-4">
+            <nav aria-label="Phân trang thông báo">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Trước</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Sau</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Đánh dấu thông báo đã đọc
+        function markAsRead(button) {
+            const notificationCard = button.closest('.notification-card');
+            notificationCard.classList.remove('unread');
+            button.style.display = 'none';
+            
+            // Cập nhật số lượng thông báo chưa đọc
+            updateUnreadCount();
+        }
+        
+        // Đánh dấu tất cả đã đọc
+        function markAllAsRead() {
+            document.querySelectorAll('.notification-card.unread').forEach(card => {
+                card.classList.remove('unread');
+                const readButton = card.querySelector('.notification-actions .btn-outline-primary');
+                if (readButton) {
+                    readButton.style.display = 'none';
+                }
+            });
+            
+            updateUnreadCount();
+        }
+        
+        // Lọc thông báo
+        function filterNotifications(filter) {
+            const notifications = document.querySelectorAll('.notification-card');
+            const emptyState = document.getElementById('empty-state');
+            let visibleCount = 0;
+            
+            // Cập nhật trạng thái active của filter tags
+            document.querySelectorAll('.filter-tag').forEach(tag => {
+                tag.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            notifications.forEach(notification => {
+                let shouldShow = false;
+                
+                switch(filter) {
+                    case 'all':
+                        shouldShow = true;
+                        break;
+                    case 'unread':
+                        shouldShow = notification.classList.contains('unread');
+                        break;
+                    case 'important':
+                        shouldShow = notification.classList.contains('important');
+                        break;
+                    case 'course':
+                        shouldShow = notification.dataset.category === 'course';
+                        break;
+                    case 'exam':
+                        shouldShow = notification.dataset.category === 'exam';
+                        break;
+                    case 'forum':
+                        shouldShow = notification.dataset.category === 'forum';
+                        break;
+                }
+                
+                if (shouldShow) {
+                    notification.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    notification.style.display = 'none';
+                }
+            });
+            
+            // Hiển thị/ẩn trạng thái trống
+            if (visibleCount === 0) {
+                emptyState.style.display = 'block';
+            } else {
+                emptyState.style.display = 'none';
+            }
+        }
+        
+        // Cập nhật số lượng thông báo chưa đọc
+        function updateUnreadCount() {
+            const unreadCount = document.querySelectorAll('.notification-card.unread').length;
+            // TODO: Cập nhật badge số lượng thông báo trên header
+            console.log('Số thông báo chưa đọc:', unreadCount);
+        }
+        
+        // Khởi tạo khi trang load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUnreadCount();
+        });
+        
+        // Tự động đánh dấu đã đọc khi click vào thông báo
+        document.querySelectorAll('.notification-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                // Không đánh dấu đã đọc nếu click vào button
+                if (e.target.closest('.btn')) {
+                    return;
+                }
+                
+                // Đánh dấu đã đọc khi click vào nội dung thông báo
+                if (this.classList.contains('unread')) {
+                    this.classList.remove('unread');
+                    const readButton = this.querySelector('.notification-actions .btn-outline-primary');
+                    if (readButton) {
+                        readButton.style.display = 'none';
+                    }
+                    updateUnreadCount();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

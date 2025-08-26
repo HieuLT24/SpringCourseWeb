@@ -52,6 +52,42 @@
     
     <div class="content-wrapper">
         <div class="container">
+            <!-- My Courses for logged-in users -->
+            <section class="mb-5" sec:authorize="isAuthenticated()" th:if="${myCourses != null}">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>
+                        <i class="fas fa-book-reader me-2"></i>Khóa học của tôi
+                    </h2>
+                    <a th:href="@{/learning/course/} + ${myCourses.get(0).id}" class="btn btn-outline-primary btn-modern" th:if="${!myCourses.empty}">
+                        <i class="fas fa-arrow-right me-1"></i>Vào học nhanh
+                    </a>
+                </div>
+
+                <div th:if="${myCourses.empty}" class="text-muted mb-3">
+                    Bạn chưa đăng ký khóa học nào.
+                </div>
+
+                <div class="row" th:if="${!myCourses.empty}">
+                    <div class="col-lg-3 col-md-4 mb-4" th:each="course : ${myCourses}">
+                        <div class="course-card">
+                            <div class="position-relative">
+                                <img th:src="${course.image}" alt="Course Image" class="course-image">
+                                <div class="position-absolute top-0 end-0 m-3">
+                                    <span class="badge bg-success">Đã đăng ký</span>
+                                </div>
+                            </div>
+                            <div class="card-body p-3">
+                                <h6 class="card-title mb-2 text-truncate" th:text="${course.title}">Tên khóa học</h6>
+                                <div class="d-flex justify-content-between">
+                                    <a th:href="@{/learning/course/{id}(id=${course.id})}" class="btn btn-primary btn-sm btn-modern">
+                                        <i class="fas fa-play me-1"></i>Vào học
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
             <!-- Search Card -->
             <div class="search-card mb-5">
                 <h4 class="mb-4">
