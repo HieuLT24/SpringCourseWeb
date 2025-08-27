@@ -13,3 +13,4 @@ public interface LectureRepository {
     
     public void deleteLecture(int id);
 }
+

@@ -6,6 +6,9 @@ package com.pdh.repositories.impl;
 
 import com.pdh.pojo.User;
 import com.pdh.repositories.UserRepository;
+
+import java.util.List;
+
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,5 +72,24 @@ public class UserRepositoryImpl implements UserRepository{
             s.persist(user);
         }
     }
-    
+
+    @Override
+    public List<User> getUsers() {
+        Session s = this.factory.getObject().getCurrentSession();
+        Query q = s.createNamedQuery("User.findAll", User.class);
+        return q.getResultList();
+    }
+
+    @Override
+    public User getUserById(int id) {
+        Session s = this.factory.getObject().getCurrentSession();
+        return s.get(User.class, id);
+    }
+
+    @Override
+    public void deleteUserById(int id) {
+        Session s = this.factory.getObject().getCurrentSession();
+        User u = s.get(User.class, id);
+        s.remove(u);
+    }
 }

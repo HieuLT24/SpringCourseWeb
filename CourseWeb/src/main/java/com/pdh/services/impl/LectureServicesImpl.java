@@ -33,3 +33,4 @@ public class LectureServicesImpl implements LectureServices {
         this.lectureRepo.deleteLecture(id);
     }
 }
+

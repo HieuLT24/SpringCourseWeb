@@ -27,6 +27,9 @@ public class JwtUtil {
 
     @Value("${jwt.expiration}")
     private long expirationTime;
+    
+    @Value("${jwt.refresh.expiration}")
+    private long refreshExpirationTime;
 
     public String generateToken(String email) {
         return Jwts.builder()
@@ -38,6 +41,28 @@ public class JwtUtil {
     }
 
     public String validateToken(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            return claims.getSubject();
+        } catch (JwtException e) {
+            return null;
+        }
+    }
+    
+    public String generateRefreshToken(String email) {
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + refreshExpirationTime))
+                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), SignatureAlgorithm.HS256)
+                .compact();
+    }
+    
+    public String validateRefreshToken(String token) {
         try {
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes()))

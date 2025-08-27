@@ -12,3 +12,4 @@ public interface ForumServices {
     
     public void deleteForum(int id);
 }
+

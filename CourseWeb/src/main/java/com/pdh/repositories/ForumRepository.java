@@ -12,3 +12,4 @@ public interface ForumRepository {
     
     public void deleteForum(int id);
 }
+

@@ -13,3 +13,4 @@ public interface PostRepository {
     
     public void deletePost(int id);
 }
+

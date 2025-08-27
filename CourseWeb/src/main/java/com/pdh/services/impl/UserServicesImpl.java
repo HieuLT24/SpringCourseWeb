@@ -8,6 +8,7 @@ import com.pdh.pojo.User;
 import com.pdh.repositories.UserRepository;
 import com.pdh.services.UserServices;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -79,28 +80,18 @@ public class UserServicesImpl implements UserServices {
         this.userRepo.createOrUpdateUser(user);
     }
     
-    // @Override
-    // public User createUser(String name, String email, String username, String password) {
-    //     // Kiểm tra username và email đã tồn tại chưa
-    //     if (isUsernameExists(username)) {
-    //         throw new RuntimeException("Tên đăng nhập đã tồn tại");
-    //     }
-        
-    //     if (isEmailExists(email)) {
-    //         throw new RuntimeException("Email đã tồn tại");
-    //     }
-        
-    //     // Tạo user mới
-    //     User newUser = new User();
-    //     newUser.setName(name);
-    //     newUser.setEmail(email);
-    //     newUser.setUsername(username);
-    //     newUser.setPassword(password);
-    //     newUser.setRole("USER"); // Role mặc định
-        
-    //     // Lưu user mới
-    //     createOrUpdateUser(newUser);
-        
-    //     return newUser;
-    // }
+    @Override
+    public List<User> getUsers() {
+        return this.userRepo.getUsers();
+    }
+
+    @Override
+    public User getUserById(int id) {
+        return this.userRepo.getUserById(id);
+    }
+
+    @Override
+    public void deleteUserById(int id) {
+        this.userRepo.deleteUserById(id);
+    }
 }

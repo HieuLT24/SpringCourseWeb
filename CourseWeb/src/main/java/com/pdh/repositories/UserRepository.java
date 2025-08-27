@@ -4,6 +4,8 @@
  */
 package com.pdh.repositories;
 
+import java.util.List;
+
 import com.pdh.pojo.User;
 
 /**
@@ -16,4 +18,7 @@ public interface UserRepository {
     public boolean isUsernameExists(String username);
     public boolean isEmailExists(String email);
     public void createOrUpdateUser(User user);
+    public List<User> getUsers();
+    public User getUserById(int id);
+    public void deleteUserById(int id);
 }

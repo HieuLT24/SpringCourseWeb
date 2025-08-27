@@ -5,6 +5,9 @@
 package com.pdh.services;
 
 import com.pdh.pojo.User;
+
+import java.util.List;
+
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
@@ -17,5 +20,8 @@ public interface UserServices extends UserDetailsService {
     boolean isUsernameExists(String username);
     boolean isEmailExists(String email);
     void createOrUpdateUser(User user);
+    List<User> getUsers();
+    User getUserById(int id);
+    void deleteUserById(int id);
     // User registerUser(String name, String email, String username, String password);
 }

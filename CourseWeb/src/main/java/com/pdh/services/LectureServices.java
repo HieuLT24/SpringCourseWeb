@@ -13,3 +13,4 @@ public interface LectureServices {
     
     public void deleteLecture(int id);
 }
+

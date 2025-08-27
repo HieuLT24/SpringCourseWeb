@@ -32,3 +32,4 @@ public class ForumServicesImpl implements ForumServices {
         this.forumRepo.deleteForum(id);
     }
 }
+
