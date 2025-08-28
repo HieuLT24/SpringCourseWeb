@@ -16,9 +16,11 @@ import com.pdh.dto.user.ChangePasswordRequest;
 import com.pdh.dto.user.RegisterRequest;
 import com.pdh.pojo.User;
 import com.pdh.services.UserServices;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 @RestController
 @RequestMapping("/api/users")
+@CrossOrigin
 public class ApiUserController {
     @Autowired
     private UserServices userServices;

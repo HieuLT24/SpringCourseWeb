@@ -4,6 +4,7 @@
  */
 package com.pdh.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -54,6 +55,7 @@ public class Post implements Serializable {
     private Date createdAt;
     @JoinColumn(name = "forum_id", referencedColumnName = "id")
     @ManyToOne
+    @JsonIgnore
     private Forum forumId;
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @ManyToOne

@@ -4,6 +4,7 @@
  */
 package com.pdh.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -59,10 +60,13 @@ public class User implements Serializable {
     @Column(name = "password")
     private String password;
     @OneToMany(mappedBy = "userId")
+    @JsonIgnore
     private Set<Post> postSet;
     @OneToMany(mappedBy = "teacherId")
+    @JsonIgnore
     private Set<Course> courseSet;
     @OneToMany(mappedBy = "userId")
+    @JsonIgnore
     private Set<Enrollment> enrollmentSet;
 
     public User() {

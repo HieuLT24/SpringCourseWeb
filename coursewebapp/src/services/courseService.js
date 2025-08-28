@@ -1,48 +1,56 @@
-import { api } from './api';
+import axios from '../configs/Apis';
+import { endpoints, buildUrl } from '../configs/Apis';
 
-export const courseService = {
-    // Lấy danh sách tất cả khóa học
-    getAllCourses: async () => {
-        return await api.get('/courses');
-    },
-
-    // Lấy danh sách khóa học theo category
-    getCoursesByCategory: async (categoryId) => {
-        return await api.get(`/courses?categoryId=${categoryId}`);
-    },
-
-    // Lấy chi tiết khóa học
-    getCourseById: async (courseId) => {
-        return await api.get(`/learning/course/${courseId}`);
-    },
-
-    // Lấy danh sách bài giảng của khóa học
-    getCourseLectures: async (courseId) => {
-        return await api.get(`/learning/course/${courseId}/lectures`);
-    },
-
-    // Lấy danh sách bài thi của khóa học
-    getCourseExams: async (courseId) => {
-        return await api.get(`/learning/course/${courseId}/exams`);
-    },
-
-    // Lấy chi tiết bài giảng
-    getLectureById: async (courseId, lectureId) => {
-        return await api.get(`/learning/course/${courseId}/lecture/${lectureId}`);
-    },
-
-    // Lấy chi tiết bài thi
-    getExamById: async (courseId, examId) => {
-        return await api.get(`/learning/course/${courseId}/exam/${examId}`);
-    },
-
-    // Nộp bài thi
-    submitExam: async (courseId, examId, answers) => {
-        return await api.post(`/learning/course/${courseId}/exam/${examId}/submit`, { answers });
-    },
-
-    // Lấy danh sách categories
-    getCategories: async () => {
-        return await api.get('/categories');
+class CourseService {
+  async getAllCourses(params = {}) {
+    try {
+      const response = await axios.get(endpoints.courses.getAll, { params });
+      return response.data;
+    } catch (error) {
+      throw error;
     }
-};
+  }
+
+  async getCourseById(courseId) {
+    try {
+      const url = buildUrl(endpoints.courses.getById, { courseId });
+      const response = await axios.get(url);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getCategories() {
+    try {
+      const response = await axios.get(endpoints.courses.getCategories);
+      const data = response.data;
+      return Array.isArray(data) ? data : (data?.categories || []);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getCoursesByCategory(cateId, page = 1) {
+    try {
+      const response = await axios.get(endpoints.courses.getAll, {
+        params: { cateId, page }
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async searchCourses(keyword, filters = {}) {
+    try {
+      const params = { kw: keyword, ...filters };
+      const response = await axios.get(endpoints.courses.getAll, { params });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+}
+
+export const courseService = new CourseService();

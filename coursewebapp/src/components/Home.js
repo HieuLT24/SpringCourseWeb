@@ -4,28 +4,32 @@ import { courseService } from '../services/courseService';
 
 function Home() {
   const [courses, setCourses] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useState({
     kw: '',
     fromPrice: '',
     toPrice: '',
-    categoryId: ''
+    cateId: ''
   });
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [page]);
 
   const loadData = async () => {
     try {
       const [coursesData, categoriesData] = await Promise.all([
-        courseService.getAllCourses(),
+        courseService.getAllCourses({ page }),
         courseService.getCategories()
       ]);
       
-      setCourses(coursesData.courses || []);
-      setCategories(categoriesData.categories || []);
+      const items = coursesData.courses || [];
+      setCourses(items);
+      setHasMore(items.length === 12);
+      setCategories(Array.isArray(categoriesData) ? categoriesData : []);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -36,35 +40,18 @@ function Home() {
   const handleSearch = async () => {
     setLoading(true);
     try {
-      let coursesData;
-      if (searchParams.categoryId) {
-        coursesData = await courseService.getCoursesByCategory(searchParams.categoryId);
-      } else {
-        coursesData = await courseService.getAllCourses();
-      }
-      
-      // Filter by search keyword and price if needed
-      let filteredCourses = coursesData.courses || [];
-      
-      if (searchParams.kw) {
-        filteredCourses = filteredCourses.filter(course => 
-          course.name.toLowerCase().includes(searchParams.kw.toLowerCase())
-        );
-      }
-      
-      if (searchParams.fromPrice) {
-        filteredCourses = filteredCourses.filter(course => 
-          course.price >= parseFloat(searchParams.fromPrice)
-        );
-      }
-      
-      if (searchParams.toPrice) {
-        filteredCourses = filteredCourses.filter(course => 
-          course.price <= parseFloat(searchParams.toPrice)
-        );
-      }
-      
-      setCourses(filteredCourses);
+      const params = {
+        page: 1,
+        kw: searchParams.kw || undefined,
+        fromPrice: searchParams.fromPrice || undefined,
+        toPrice: searchParams.toPrice || undefined,
+        cateId: searchParams.cateId || undefined
+      };
+      const coursesData = await courseService.getAllCourses(params);
+      const items = coursesData.courses || [];
+      setPage(1);
+      setCourses(items);
+      setHasMore(items.length === 12);
     } catch (error) {
       console.error('Error searching courses:', error);
     } finally {
@@ -109,6 +96,36 @@ function Home() {
 
       <div className="content-wrapper py-5">
         <div className="container">
+          {/* Categories Section */}
+          <div className="bg-white p-4 rounded-3 shadow-sm mb-5">
+            <h4 className="mb-3">
+              <i className="fas fa-th-large me-2"></i>Danh mục nổi bật
+            </h4>
+            {categories.length === 0 ? (
+              <p className="text-muted mb-0">Chưa có danh mục.</p>
+            ) : (
+              <div className="row g-3">
+                {categories.map((cate) => (
+                  <div className="col-6 col-md-4 col-lg-3" key={cate.id}>
+                    <button
+                      type="button"
+                      className="w-100 btn btn-outline-primary d-flex align-items-center justify-content-between"
+                      onClick={() => {
+                        setSearchParams((prev) => ({ ...prev, cateId: String(cate.id) }));
+                        handleSearch();
+                      }}
+                    >
+                      <span className="text-start">
+                        <i className="fas fa-folder-open me-2"></i>
+                        {cate.name}
+                      </span>
+                      <i className="fas fa-arrow-right"></i>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           {/* Search Card */}
           <div className="bg-white p-4 rounded-3 shadow-sm mb-5">
             <h4 className="mb-4">
@@ -129,8 +146,8 @@ function Home() {
                 <div className="col-lg-2 mb-3">
                   <select 
                     className="form-select" 
-                    name="categoryId"
-                    value={searchParams.categoryId}
+                    name="cateId"
+                    value={searchParams.cateId}
                     onChange={handleInputChange}
                   >
                     <option value="">Tất cả danh mục</option>
@@ -226,10 +243,7 @@ function Home() {
                           {course.description || 'Mô tả khóa học sẽ được hiển thị ở đây.'}
                         </p>
                         <div className="d-flex justify-content-between align-items-center">
-                          <div className="text-muted">
-                            <i className="fas fa-user me-1"></i>
-                            <small>{course.instructor || 'Giảng viên'}</small>
-                          </div>
+                          
                           <div>
                             <Link to={`/courses/${course.id}`} className="btn btn-primary btn-sm">
                               <i className="fas fa-eye me-1"></i>Xem chi tiết
@@ -243,6 +257,16 @@ function Home() {
               </div>
             )}
           </section>
+          {/* Pagination */}
+          <div className="d-flex justify-content-center align-items-center gap-2">
+            <button className="btn btn-outline-secondary" disabled={page === 1 || loading} onClick={() => setPage((p) => Math.max(1, p - 1))}>
+              <i className="fas fa-chevron-left me-1"></i>Trang trước
+            </button>
+            <span className="px-3">Trang {page}</span>
+            <button className="btn btn-outline-primary" disabled={!hasMore || loading} onClick={() => setPage((p) => p + 1)}>
+              Trang sau<i className="fas fa-chevron-right ms-1"></i>
+            </button>
+          </div>
         </div>
       </div>
     </div>

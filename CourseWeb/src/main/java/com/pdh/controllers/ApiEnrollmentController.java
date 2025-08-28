@@ -18,9 +18,12 @@ import com.pdh.pojo.User;
 import com.pdh.services.CourseServices;
 import com.pdh.services.EnrollmentServices;
 import com.pdh.services.UserServices;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/courses")
+@CrossOrigin
 public class ApiEnrollmentController {
 
     @Autowired
@@ -32,15 +35,18 @@ public class ApiEnrollmentController {
     @Autowired
     private UserServices userService;
 
+    // JwtUtil không còn dùng trực tiếp vì đã có JwtAuthenticationFilter
+
     @PostMapping("/{courseId}/enrollments")
-    public ResponseEntity<?> enrollCourse(@PathVariable int courseId, Authentication authentication) {
+    public ResponseEntity<?> enrollCourse(@PathVariable int courseId, Authentication authentication, HttpServletRequest request) {
         try {
-            if (authentication == null || !authentication.isAuthenticated()) {
+            String username = (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())) ? authentication.getName() : null;
+
+            if (username == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("message", "User not authenticated"));
             }
 
-            String username = authentication.getName();
             User user = userService.getUserByUsername(username);
             if (user == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

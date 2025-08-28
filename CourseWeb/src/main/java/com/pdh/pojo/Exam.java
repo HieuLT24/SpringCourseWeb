@@ -4,6 +4,7 @@
  */
 package com.pdh.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -47,7 +48,11 @@ public class Exam implements Serializable {
     @ManyToOne
     private Course courseId;
     @OneToMany(mappedBy = "examId")
+    @JsonIgnore
     private Set<Question> questionSet;
+
+    @Column(name = "duration_minutes")
+    private Integer durationMinutes;
 
     public Exam() {
     }
@@ -86,6 +91,14 @@ public class Exam implements Serializable {
 
     public void setQuestionSet(Set<Question> questionSet) {
         this.questionSet = questionSet;
+    }
+
+    public Integer getDurationMinutes() {
+        return durationMinutes;
+    }
+
+    public void setDurationMinutes(Integer durationMinutes) {
+        this.durationMinutes = durationMinutes;
     }
 
     @Override

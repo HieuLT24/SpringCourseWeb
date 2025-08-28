@@ -8,7 +8,6 @@ import com.pdh.services.AuthService;
 import com.pdh.utils.JwtUtil;
 
 import org.springframework.security.core.Authentication;
-import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin
 public class ApiAuthController {
     @Autowired private UserRepository userRepository;
     @Autowired private JavaMailSender mailSender;
@@ -37,9 +39,23 @@ public class ApiAuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(Authentication authentication) {
-        authService.logout(authentication.getName());
-        return ResponseEntity.ok("Đăng xuất thành công");
+    public ResponseEntity<?> logout(Authentication authentication, HttpServletRequest request) {
+        String username = null;
+        if (authentication != null) {
+            username = authentication.getName();
+        }
+        if (username == null) {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7);
+                username = jwtUtil.validateToken(token);
+            }
+        }
+        if (username != null) {
+            authService.logout(username);
+            return ResponseEntity.ok("Đăng xuất thành công");
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Không xác định được người dùng");
     }
 
     @PostMapping("/refresh")

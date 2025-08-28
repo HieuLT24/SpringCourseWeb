@@ -13,15 +13,17 @@ import AdminDashboard from './components/admin/AdminDashboard';
 import AdminCourses from './components/admin/AdminCourses';
 import AdminCourseForm from './components/admin/AdminCourseForm';
 import AdminStats from './components/admin/AdminStats';
-import LearningDashboard from './components/learning/LearningDashboard';
+import LearningList from './components/learning/LearningList';
 import Lecture from './components/learning/Lecture';
 import Exam from './components/learning/Exam';
 import Forum from './components/learning/Forum';
+import DashboardLayout from './components/learning/Dashboard';
 import PostDetail from './components/learning/PostDetail';
 import Notifications from './components/learning/Notifications';
 import ErrorPage from './components/system/ErrorPage';
 import ForgotPassword from './components/system/ForgotPassword';
 import ResetPassword from './components/system/ResetPassword';
+import PaymentResult from './components/system/PaymentResult';
 
 function App() {
   return (
@@ -44,8 +46,13 @@ function App() {
               <Route path="/admin/courses/:id/edit" element={<AdminCourseForm />} />
               <Route path="/admin/stats" element={<AdminStats />} />
               {/* Learning */}
-              <Route path="/learning" element={<LearningDashboard />} />
-              <Route path="/learning/course/:id" element={<Lecture />} />
+              <Route path="/learning" element={<LearningList />} />
+              <Route path="/learning/course/:id" element={<DashboardLayout />}>
+                <Route path="lectures" element={<Lecture />} />
+                <Route path="exams" element={<Exam />} />
+                <Route path="forum" element={<Forum />} />
+                <Route index element={<Lecture />} />
+              </Route>
               <Route path="/learning/exam/:id" element={<Exam />} />
               <Route path="/learning/forum" element={<Forum />} />
               <Route path="/learning/forum/:id" element={<PostDetail />} />
@@ -54,6 +61,7 @@ function App() {
               <Route path="/error" element={<ErrorPage />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/payment/result" element={<PaymentResult />} />
             </Routes>
           </main>
           <Footer />

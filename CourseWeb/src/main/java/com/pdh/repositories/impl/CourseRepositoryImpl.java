@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class CourseRepositoryImpl implements CourseRepository{
 
-    private static final int PAGE_SIZE = 8;
+    private static final int PAGE_SIZE = 12;
     @Autowired
     private LocalSessionFactoryBean factory;
 
@@ -45,7 +45,11 @@ public class CourseRepositoryImpl implements CourseRepository{
 
             String kw = params.get("kw");
             if (kw != null && !kw.isEmpty()) {
-                predicates.add(b.like(root.get("title"), String.format("%%%s%%", kw)));
+                String pattern = String.format("%%%s%%", kw);
+                predicates.add(b.or(
+                    b.like(b.lower(root.get("title")), pattern.toLowerCase()),
+                    b.like(b.lower(root.get("description")), pattern.toLowerCase())
+                ));
             }
 
             String fromPrice = params.get("fromPrice");

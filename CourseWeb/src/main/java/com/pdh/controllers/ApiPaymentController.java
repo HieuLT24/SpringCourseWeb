@@ -13,6 +13,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/payment")
+@CrossOrigin
 public class ApiPaymentController {
     @Autowired
     private PaymentServices paymentService;
@@ -28,21 +29,24 @@ public class ApiPaymentController {
 
     @Value("${vnpay.hashSecret}")
     private String vnpayHashSecret;
+    @Value("${frontend.baseUrl}")
+    private String frontendBaseUrl;
 
 
     @PostMapping("/process")
     public ResponseEntity<?> processPayment(@RequestBody Map<String, Object> paymentRequest,
-                                            Authentication authentication) {
+                                            Authentication authentication,
+                                            jakarta.servlet.http.HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
+        String username = (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())) ? authentication.getName() : null;
+        if (username == null) {
             response.put("success", false);
             response.put("message", "Bạn chưa đăng nhập");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
 
         try {
-            User user = userService.getUserByUsername(authentication.getName());
+            User user = userService.getUserByUsername(username);
             if (user == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
                         "success", false,
@@ -98,11 +102,15 @@ public class ApiPaymentController {
             savedPayment.setQrCodeData(paymentUrl);
             paymentService.updatePayment(savedPayment);
 
+            String successUrl = frontendBaseUrl + "/payment/result?success=true&method=" + paymentMethod +
+                    "&orderId=" + savedPayment.getId() + (course.getPrice() != null ? "&amount=" + course.getPrice() : "");
+
             return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                     "success", true,
                     "message", "Tạo thanh toán thành công",
                     "paymentUrl", paymentUrl,
-                    "paymentId", savedPayment.getId()
+                    "paymentId", savedPayment.getId(),
+                    "successUrl", successUrl
             ));
 
         } catch (Exception e) {
@@ -167,14 +175,18 @@ public class ApiPaymentController {
     public ResponseEntity<?> momoReturn(@RequestParam Map<String, String> params) {
         String orderId = params.get("orderId");
         String resultCode = params.get("resultCode");
-
-        return ResponseEntity.ok(Map.of(
-                "success", "0".equals(resultCode),
-                "orderId", orderId,
-                "message", "0".equals(resultCode)
-                        ? "Thanh toán MoMo thành công"
-                        : "Thanh toán MoMo thất bại"
-        ));
+        boolean success = "0".equals(resultCode);
+        try {
+            int paymentId = Integer.parseInt(orderId.split("_")[0]);
+            Payment payment = paymentService.getPaymentById(paymentId);
+            Integer courseId = payment != null && payment.getEnrollmentId() != null && payment.getEnrollmentId().getCourseId() != null
+                    ? payment.getEnrollmentId().getCourseId().getId() : null;
+            String redirectUrl = frontendBaseUrl + "/courses/" + (courseId != null ? courseId : "") + "?payment=" + (success ? "success" : "failed");
+            return ResponseEntity.status(HttpStatus.FOUND).header("Location", redirectUrl).build();
+        } catch (Exception e) {
+            String fallback = frontendBaseUrl + "/payment/result?success=" + success + "&method=MOMO&orderId=" + orderId;
+            return ResponseEntity.status(HttpStatus.FOUND).header("Location", fallback).build();
+        }
     }
     @RequestMapping(value = "/callback/vnpay", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<?> vnpayCallback(@RequestParam Map<String, String> callbackData) {
@@ -189,6 +201,11 @@ public class ApiPaymentController {
 
             Payment payment = paymentService.getPaymentById(paymentId);
             if (payment != null) {
+                // Lưu transactionId từ VNPay nếu có
+                String vnpTransNo = callbackData.get("vnp_TransactionNo");
+                if (vnpTransNo != null && !vnpTransNo.isEmpty()) {
+                    payment.setTransactionId(vnpTransNo);
+                }
                 if ("00".equals(vnp_ResponseCode)) {
                     payment.setStatus("SUCCESS");
                     if (payment.getEnrollmentId() != null) {
@@ -202,7 +219,11 @@ public class ApiPaymentController {
                 paymentService.updatePayment(payment);
             }
 
-            return ResponseEntity.ok("OK");
+            boolean success = "00".equals(vnp_ResponseCode);
+            Integer courseId = payment != null && payment.getEnrollmentId() != null && payment.getEnrollmentId().getCourseId() != null
+                    ? payment.getEnrollmentId().getCourseId().getId() : null;
+            String redirectUrl = frontendBaseUrl + "/courses/" + (courseId != null ? courseId : "") + "?payment=" + (success ? "success" : "failed");
+            return ResponseEntity.status(HttpStatus.FOUND).header("Location", redirectUrl).build();
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("ERROR");

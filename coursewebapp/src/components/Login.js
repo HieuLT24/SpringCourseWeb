@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { authService } from '../services/authService';
+import { useAuth } from '../contexts/AuthContext';
 
 function Login() {
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -24,13 +25,11 @@ function Login() {
     setError('');
 
     try {
-      const response = await authService.login(formData.username, formData.password);
-      
-      if (response.success) {
-        authService.saveAuthData(response);
+      const resp = await login(formData.username, formData.password);
+      if (resp.success) {
         navigate('/');
       } else {
-        setError(response.message || 'Đăng nhập thất bại');
+        setError(resp.message || 'Đăng nhập thất bại');
       }
     } catch (err) {
       setError('Có lỗi xảy ra khi đăng nhập');

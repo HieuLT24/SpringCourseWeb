@@ -1,29 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { authService } from '../../services/authService';
+import { useAuth } from '../../contexts/AuthContext';
 
 function Header() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
+  const { isAuthenticated, currentUser, checkAuthStatus, logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     checkAuthStatus();
-  }, []);
-
-  const checkAuthStatus = () => {
-    const authenticated = authService.isAuthenticated();
-    const user = authService.getCurrentUser();
-    setIsAuthenticated(authenticated);
-    setCurrentUser(user);
-  };
+  }, [checkAuthStatus]);
 
   const handleLogout = async () => {
     try {
-      await authService.logout();
-      authService.clearAuthData();
-      setIsAuthenticated(false);
-      setCurrentUser(null);
+      await logout();
       navigate('/');
     } catch (error) {
       console.error('Logout error:', error);

@@ -4,6 +4,7 @@
  */
 package com.pdh.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -51,6 +52,7 @@ public class Enrollment implements Serializable {
     @Column(name = "status")
     private String status;
     @OneToMany(mappedBy = "enrollmentId")
+    @JsonIgnore
     private Set<Payment> paymentSet;
     @JoinColumn(name = "course_id", referencedColumnName = "id")
     @ManyToOne

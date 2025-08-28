@@ -4,6 +4,7 @@
  */
 package com.pdh.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -60,6 +61,7 @@ public class Lecture implements Serializable {
     private String attachmentUrl;
     @JoinColumn(name = "course_id", referencedColumnName = "id")
     @ManyToOne
+    @JsonIgnore
     private Course courseId;
 
     public Lecture() {

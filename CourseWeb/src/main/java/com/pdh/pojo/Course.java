@@ -4,6 +4,7 @@
  */
 package com.pdh.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -58,8 +59,10 @@ public class Course implements Serializable {
     @Column(name = "status")
     private String status;
     @OneToMany(mappedBy = "courseId")
+    @JsonIgnore
     private Set<Exam> examSet;
     @OneToMany(mappedBy = "courseId")
+    @JsonIgnore
     private Set<Forum> forumSet;
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     @ManyToOne
@@ -68,8 +71,10 @@ public class Course implements Serializable {
     @ManyToOne
     private User teacherId;
     @OneToMany(mappedBy = "courseId")
+    @JsonIgnore
     private Set<Lecture> lectureSet;
     @OneToMany(mappedBy = "courseId")
+    @JsonIgnore
     private Set<Enrollment> enrollmentSet;
     private String image;
     

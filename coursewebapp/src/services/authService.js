@@ -1,86 +1,139 @@
-import { api } from './api';
+import axios from '../configs/Apis';
+import { endpoints } from '../configs/Apis';
 
-export const authService = {
-    // Đăng nhập
-    login: async (username, password) => {
-        return await api.post('/auth/login', { username, password });
-    },
-
-    // Đăng xuất
-    logout: async () => {
-        return await api.post('/auth/logout');
-    },
-
-    // Refresh token
-    refreshToken: async (refreshToken) => {
-        return await api.post('/auth/refresh', { refreshToken });
-    },
-
-    // Quên mật khẩu
-    forgotPassword: async (email) => {
-        const formData = new FormData();
-        formData.append('email', email);
-        
-        const response = await fetch('http://localhost:8080/api/auth/forgot-password', {
-            method: 'POST',
-            body: formData
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        return await response.json();
-    },
-
-    // Reset mật khẩu
-    resetPassword: async (token, password, confirmPassword) => {
-        const formData = new FormData();
-        formData.append('token', token);
-        formData.append('password', password);
-        formData.append('confirmPassword', confirmPassword);
-        
-        const response = await fetch('http://localhost:8080/api/auth/reset-password', {
-            method: 'POST',
-            body: formData
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        return await response.json();
-    },
-
-    // Kiểm tra trạng thái đăng nhập
-    isAuthenticated: () => {
-        const token = localStorage.getItem('accessToken');
-        return !!token;
-    },
-
-    // Lấy thông tin user từ token
-    getCurrentUser: () => {
-        const userStr = localStorage.getItem('user');
-        return userStr ? JSON.parse(userStr) : null;
-    },
-
-    // Lưu thông tin đăng nhập
-    saveAuthData: (authData) => {
-        if (authData.accessToken) {
-            localStorage.setItem('accessToken', authData.accessToken);
-        }
-        if (authData.refreshToken) {
-            localStorage.setItem('refreshToken', authData.refreshToken);
-        }
-        if (authData.user) {
-            localStorage.setItem('user', JSON.stringify(authData.user));
-        }
-    },
-
-    // Xóa thông tin đăng nhập
-    clearAuthData: () => {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
+class AuthService {
+  async login(username, password) {
+    try {
+      const response = await axios.post(endpoints.auth.login, {
+        username,
+        password
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
     }
-};
+  }
+
+  async logout() {
+    try {
+      const response = await axios.post(endpoints.auth.logout);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async refreshToken(refreshToken) {
+    try {
+      const response = await axios.post(endpoints.auth.refresh, {
+        refreshToken
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async forgotPassword(email) {
+    try {
+      const response = await axios.post(endpoints.auth.forgotPassword, null, {
+        params: { email }
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async resetPassword(token, password, confirmPassword) {
+    try {
+      const response = await axios.post(endpoints.auth.resetPassword, null, {
+        params: { token, password, confirmPassword }
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Local storage methods
+  saveAuthData(data) {
+    if (data.accessToken) {
+      localStorage.setItem('accessToken', data.accessToken);
+    }
+    if (data.refreshToken) {
+      localStorage.setItem('refreshToken', data.refreshToken);
+    }
+    if (data.user) {
+      localStorage.setItem('user', JSON.stringify(data.user));
+    }
+  }
+
+  getAccessToken() {
+    return localStorage.getItem('accessToken');
+  }
+
+  getRefreshToken() {
+    return localStorage.getItem('refreshToken');
+  }
+
+  getCurrentUser() {
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user) : null;
+  }
+
+  isAuthenticated() {
+    return !!this.getAccessToken();
+  }
+
+  clearAuthData() {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+  }
+
+  // Setup axios interceptor for authentication
+  setupAuthInterceptor() {
+    axios.interceptors.request.use(
+      (config) => {
+        const token = this.getAccessToken();
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
+
+    axios.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config || {};
+        const isAuthEndpoint = originalRequest.url?.includes('auth/refresh') || originalRequest.url?.includes('auth/login');
+        if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
+          originalRequest._retry = true;
+          const refreshToken = this.getRefreshToken();
+          if (refreshToken) {
+            try {
+              const resp = await this.refreshToken(refreshToken);
+              if (!resp?.accessToken) throw new Error('No access token');
+              this.saveAuthData(resp);
+              originalRequest.headers = originalRequest.headers || {};
+              originalRequest.headers.Authorization = `Bearer ${resp.accessToken}`;
+              return axios(originalRequest);
+            } catch (refreshError) {
+              this.clearAuthData();
+              return Promise.reject(refreshError);
+            }
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+  }
+}
+
+export const authService = new AuthService();
+authService.setupAuthInterceptor();

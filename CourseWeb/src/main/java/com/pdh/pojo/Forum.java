@@ -4,6 +4,7 @@
  */
 package com.pdh.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -47,6 +48,7 @@ public class Forum implements Serializable {
     @ManyToOne
     private Course courseId;
     @OneToMany(mappedBy = "forumId")
+    @JsonIgnore
     private Set<Post> postSet;
 
     public Forum() {

@@ -14,13 +14,16 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin
 public class ApiIndexController {
     @Autowired
     private CourseServices courseService;
@@ -30,6 +33,8 @@ public class ApiIndexController {
     private EnrollmentServices enrollmentServices;
     @Autowired
     private UserServices userServices;
+    @Autowired
+    private com.pdh.utils.JwtUtil jwtUtil;
 
     
 
@@ -38,14 +43,28 @@ public class ApiIndexController {
         return ResponseEntity.ok(cateService.getCates());
     }
     @GetMapping("/courses")
-    public ResponseEntity<?> getCourses(@RequestParam Map<String, String> params, Authentication authentication) {
+    public ResponseEntity<?> getCourses(@RequestParam Map<String, String> params, Authentication authentication, HttpServletRequest request) {
         List<Course> courses = courseService.getCourses(params);
 
         List<Course> myCourses = new ArrayList<>();
+        // Ưu tiên lấy từ SecurityContext nếu đã có
         if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())) {
             User u = userServices.getUserByUsername(authentication.getName());
             if (u != null) {
                 myCourses = enrollmentServices.getEnrolledCourses(u.getId());
+            }
+        } else {
+            // Fallback: đọc JWT từ header Authorization để xác định người dùng
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7);
+                String username = jwtUtil.validateToken(token);
+                if (username != null) {
+                    User u = userServices.getUserByUsername(username);
+                    if (u != null) {
+                        myCourses = enrollmentServices.getEnrolledCourses(u.getId());
+                    }
+                }
             }
         }
 
