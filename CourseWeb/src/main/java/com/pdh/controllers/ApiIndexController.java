@@ -39,8 +39,8 @@ public class ApiIndexController {
     
 
     @GetMapping("/categories")
-    public ResponseEntity<?> getCategories() {
-        return ResponseEntity.ok(cateService.getCates());
+    public ResponseEntity<?> getCategories(@RequestParam Map<String, String> params) {
+        return ResponseEntity.ok(cateService.getCates(params));
     }
     @GetMapping("/courses")
     public ResponseEntity<?> getCourses(@RequestParam Map<String, String> params, Authentication authentication, HttpServletRequest request) {

@@ -5,6 +5,7 @@
 package com.pdh.repositories;
 
 import com.pdh.pojo.Payment;
+import com.pdh.dto.payment.CourseHistoryDto;
 import java.util.List;
 
 /**
@@ -18,4 +19,5 @@ public interface PaymentRepository {
     List<Payment> getPaymentsByEnrollmentId(int enrollmentId);
     List<Payment> getPaymentsByStatus(String status);
     Payment getPaymentByTransactionId(String transactionId);
+    List<CourseHistoryDto> getCourseHistoryByUserId(int userId);
 }

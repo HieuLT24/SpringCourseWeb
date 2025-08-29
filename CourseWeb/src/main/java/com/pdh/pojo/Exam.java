@@ -46,10 +46,16 @@ public class Exam implements Serializable {
     private String type;
     @JoinColumn(name = "course_id", referencedColumnName = "id")
     @ManyToOne
+    @JsonIgnore
     private Course courseId;
     @OneToMany(mappedBy = "examId")
     @JsonIgnore
     private Set<Question> questionSet;
+
+    @OneToMany(mappedBy = "examId")
+    @JsonIgnore
+
+    private Set<UserExam> userExamSet;
 
     @Column(name = "duration_minutes")
     private Integer durationMinutes;
@@ -93,6 +99,14 @@ public class Exam implements Serializable {
         this.questionSet = questionSet;
     }
 
+    public Set<UserExam> getUserExamSet() {
+        return userExamSet;
+    }
+
+    public void setUserExamSet(Set<UserExam> userExamSet) {
+        this.userExamSet = userExamSet;
+    }
+
     public Integer getDurationMinutes() {
         return durationMinutes;
     }
@@ -125,5 +139,5 @@ public class Exam implements Serializable {
     public String toString() {
         return "com.pdh.pojo.Exam[ id=" + id + " ]";
     }
-    
+
 }

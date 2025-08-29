@@ -64,6 +64,7 @@ public class UserServicesImpl implements UserServices {
                 u.getUsername(), u.getPassword(), authorities);
     }
     
+    // Đăng ký người dùng mới
     @Override
     public void createOrUpdateUser(User user) {
         if (user.getId() != null) {
@@ -78,6 +79,34 @@ public class UserServicesImpl implements UserServices {
         
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         this.userRepo.createOrUpdateUser(user);
+    }
+    
+    // Cập nhật hồ sơ: không đổi username, không encode lại password
+    @Override
+    public void updateProfile(User user) {
+        if (user.getId() == null) throw new RuntimeException("Thiếu ID người dùng");
+        // Kiểm tra email trùng với người khác
+        if (userRepo.isEmailExistsExceptId(user.getEmail(), user.getId())) {
+            throw new RuntimeException("Email đã tồn tại");
+        }
+        // Không đổi username, nên không cần check username trừ khi client gửi khác
+        if (user.getUsername() != null) {
+            User existing = userRepo.getUserById(user.getId());
+            if (existing != null && !existing.getUsername().equals(user.getUsername())) {
+                if (userRepo.isUsernameExistsExceptId(user.getUsername(), user.getId())) {
+                    throw new RuntimeException("Tên đăng nhập đã tồn tại");
+                }
+            }
+        }
+        this.userRepo.updateUser(user);
+    }
+
+    // Đổi mật khẩu với mã hóa
+    @Override
+    public void changePassword(User user, String newPassword) {
+        if (user == null) throw new RuntimeException("Không tìm thấy user");
+        user.setPassword(passwordEncoder.encode(newPassword));
+        this.userRepo.updateUser(user);
     }
     
     @Override

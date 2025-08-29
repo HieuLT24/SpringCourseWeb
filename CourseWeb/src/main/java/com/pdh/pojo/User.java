@@ -19,6 +19,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Set;
+import com.pdh.pojo.Comment;
+import com.pdh.pojo.UserExam;
+import com.pdh.pojo.Post;
+import com.pdh.pojo.Course;
+import com.pdh.pojo.Enrollment;
 
 /**
  *
@@ -55,9 +60,11 @@ public class User implements Serializable {
     private String role;
     @Size(max = 45)
     @Column(name = "username")
+    @JsonIgnore
     private String username;
     @Size(max = 45)
     @Column(name = "password")
+    @JsonIgnore
     private String password;
     @OneToMany(mappedBy = "userId")
     @JsonIgnore
@@ -68,6 +75,14 @@ public class User implements Serializable {
     @OneToMany(mappedBy = "userId")
     @JsonIgnore
     private Set<Enrollment> enrollmentSet;
+
+    @OneToMany(mappedBy = "userId")
+    @JsonIgnore
+    private Set<UserExam> userExamSet;
+    
+    @OneToMany(mappedBy = "userId")
+    @JsonIgnore
+    private Set<Comment> commentSet;
 
     public User() {
     }
@@ -146,6 +161,22 @@ public class User implements Serializable {
 
     public void setEnrollmentSet(Set<Enrollment> enrollmentSet) {
         this.enrollmentSet = enrollmentSet;
+    }
+
+    public Set<UserExam> getUserExamSet() {
+        return userExamSet;
+    }
+
+    public void setUserExamSet(Set<UserExam> userExamSet) {
+        this.userExamSet = userExamSet;
+    }
+    
+    public Set<Comment> getCommentSet() {
+        return commentSet;
+    }
+
+    public void setCommentSet(Set<Comment> commentSet) {
+        this.commentSet = commentSet;
     }
 
     @Override

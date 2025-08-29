@@ -18,12 +18,12 @@ import Lecture from './components/learning/Lecture';
 import Exam from './components/learning/Exam';
 import Forum from './components/learning/Forum';
 import DashboardLayout from './components/learning/Dashboard';
-import PostDetail from './components/learning/PostDetail';
-import Notifications from './components/learning/Notifications';
 import ErrorPage from './components/system/ErrorPage';
 import ForgotPassword from './components/system/ForgotPassword';
 import ResetPassword from './components/system/ResetPassword';
 import PaymentResult from './components/system/PaymentResult';
+import Profile from './components/Profile';
+import CourseHistory from './components/CourseHistory';
 
 function App() {
   return (
@@ -36,6 +36,8 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/course-history" element={<CourseHistory />} />
               {/* Placeholder cho các trang khác */}
               <Route path="/courses" element={<Courses />} />
               <Route path="/courses/:id" element={<CourseDetail />} />
@@ -51,12 +53,11 @@ function App() {
                 <Route path="lectures" element={<Lecture />} />
                 <Route path="exams" element={<Exam />} />
                 <Route path="forum" element={<Forum />} />
+                <Route path="forum/post/:postId" element={<Forum />} />
                 <Route index element={<Lecture />} />
               </Route>
               <Route path="/learning/exam/:id" element={<Exam />} />
               <Route path="/learning/forum" element={<Forum />} />
-              <Route path="/learning/forum/:id" element={<PostDetail />} />
-              <Route path="/learning/notifications" element={<Notifications />} />
               {/* System */}
               <Route path="/error" element={<ErrorPage />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />

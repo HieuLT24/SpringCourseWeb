@@ -8,6 +8,8 @@ import com.pdh.pojo.Category;
 import com.pdh.repositories.CategoryRepository;
 import com.pdh.services.CategoryServices;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +24,8 @@ public class CategoryServicesImpl implements CategoryServices {
     public CategoryRepository cateRepo;
 
     @Override
-    public List<Category> getCates() {
-        return this.cateRepo.getCates();
+    public List<Category> getCates(Map<String, String> params) {
+        return this.cateRepo.getCates(params);
     }
 
     @Override

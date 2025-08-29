@@ -8,13 +8,15 @@ class UserService {
         username: userData.username,
         password: userData.password,
         email: userData.email,
-        name: userData.name
+        name: userData.name,
+        confirmPassword: userData.confirmPassword
       });
       return { success: true, message: response.data };
     } catch (error) {
+      const msg = error.response?.data?.message || error.response?.data || 'Đăng ký thất bại';
       return { 
         success: false, 
-        message: error.response?.data || 'Đăng ký thất bại' 
+        message: msg 
       };
     }
   }
@@ -52,9 +54,10 @@ class UserService {
       const response = await axios.put(endpoints.users.updateProfile, userData);
       return { success: true, message: response.data };
     } catch (error) {
+      const msg = error.response?.data?.message || error.response?.data || 'Cập nhật thất bại';
       return { 
         success: false, 
-        message: error.response?.data || 'Cập nhật thất bại' 
+        message: msg 
       };
     }
   }
@@ -68,9 +71,10 @@ class UserService {
       });
       return { success: true, message: response.data };
     } catch (error) {
+      const msg = error.response?.data?.message || error.response?.data || 'Đổi mật khẩu thất bại';
       return { 
         success: false, 
-        message: error.response?.data || 'Đổi mật khẩu thất bại' 
+        message: msg 
       };
     }
   }
@@ -81,9 +85,10 @@ class UserService {
       const response = await axios.delete(url);
       return { success: true, message: response.data };
     } catch (error) {
+      const msg = error.response?.data?.message || error.response?.data || 'Xóa user thất bại';
       return { 
         success: false, 
-        message: error.response?.data || 'Xóa user thất bại' 
+        message: msg 
       };
     }
   }

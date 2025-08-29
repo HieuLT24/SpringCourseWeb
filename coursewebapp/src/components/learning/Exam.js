@@ -28,18 +28,56 @@ function Exam() {
       setLoading(true);
       const res = await learningService.getExams(courseId);
       if (res.success) {
-        setExams(res.data || []);
-        if (res.data && res.data.length > 0) {
-          setCurrentExam(res.data[0]);
-          const qs = await learningService.getExamQuestions(courseId, res.data[0].id);
-          if (qs.success) {
-            setCurrentExam(prev => ({...prev, durationMinutes: qs.data?.exam?.durationMinutes, questions: qs.data?.questions || [] }));
-          }
-        }
+        // Lấy thông tin điểm cao nhất cho mỗi bài thi
+        const examsWithScores = await Promise.all(
+          (res.data || []).map(async (exam) => {
+            try {
+              const examDetail = await learningService.takeExam(courseId, exam.id);
+              if (examDetail.success) {
+                return {
+                  ...exam,
+                  bestScore: examDetail.data?.bestScore || null
+                };
+              }
+            } catch (err) {
+              console.error(`Error loading exam ${exam.id}:`, err);
+            }
+            return { ...exam, bestScore: null };
+          })
+        );
+        setExams(examsWithScores);
       }
     } catch (err) {
       console.error('Load exams error:', err);
       setError('Không thể tải bài kiểm tra');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const startExam = async (examId) => {
+    try {
+      setLoading(true);
+      // Lấy thông tin bài thi và câu hỏi khi bắt đầu làm bài
+      const examDetail = await learningService.takeExam(courseId, examId);
+      if (examDetail.success) {
+        const exam = examDetail.data;
+        const questionsRes = await learningService.getExamQuestions(courseId, examId);
+        if (questionsRes.success) {
+          setCurrentExam({
+            ...exam,
+            id: examId,
+            durationMinutes: questionsRes.data?.exam?.durationMinutes || exam.durationMinutes || 0,
+            questions: questionsRes.data?.questions || []
+          });
+          setStarted(true);
+          setPage(1);
+          setAnswers({});
+        }
+      }
+    } catch (err) {
+      console.error('Start exam error:', err);
+      alert('Không thể bắt đầu bài thi');
     } finally {
       setLoading(false);
     }
@@ -83,6 +121,8 @@ function Exam() {
         setResultScore(score);
         setShowResult(true);
         setStarted(false);
+        // Reload exams để cập nhật điểm cao nhất
+        loadExams();
       } else {
         alert('Nộp bài thất bại');
       }
@@ -90,6 +130,15 @@ function Exam() {
       console.error('Submit exam error:', err);
       alert('Có lỗi xảy ra');
     }
+  };
+
+  const resetExam = () => {
+    setStarted(false);
+    setCurrentExam(null);
+    setAnswers({});
+    setPage(1);
+    setRemainingSec(0);
+    timerRef.current && clearInterval(timerRef.current);
   };
 
   if (loading) {
@@ -129,29 +178,49 @@ function Exam() {
 
         {!started ? (
           <div className="bg-white p-4 rounded-3 shadow-sm">
-            <div className="row g-3">
-              <div className="col-md-4">
-                <div className="border rounded-3 p-3 h-100">
-                  <div className="text-muted">Số câu hỏi</div>
-                  <div className="fs-4 fw-semibold">{questions.length}</div>
-                </div>
+            {exams.length === 0 ? (
+              <p className="text-muted">Chưa có bài kiểm tra nào.</p>
+            ) : (
+              <div className="row g-3">
+                {exams.map((exam) => (
+                  <div className="col-md-6 col-lg-4" key={exam.id}>
+                    <div className="border rounded-3 p-3 h-100">
+                      <h6 className="mb-2">{exam.type || `Bài thi ${exam.id}`}</h6>
+                      <div className="mb-2">
+                        <small className="text-muted">Thời gian: {exam.durationMinutes || 0} phút</small>
+                      </div>
+                      {exam.bestScore !== null && (
+                        <div className="mb-3">
+                          <span className="badge bg-success">
+                            Điểm cao nhất: {exam.bestScore}/10
+                          </span>
+                        </div>
+                      )}
+                      <button 
+                        className="btn btn-primary btn-sm w-100"
+                        onClick={() => startExam(exam.id)}
+                      >
+                        {exam.bestScore !== null ? 'Làm lại' : 'Bắt đầu làm bài'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="col-md-4">
-                <div className="border rounded-3 p-3 h-100">
-                  <div className="text-muted">Thời gian</div>
-                  <div className="fs-4 fw-semibold">{currentExam?.durationMinutes || 0} phút</div>
-                </div>
-              </div>
-            </div>
-            <div className="text-end mt-3">
-              <button className="btn btn-primary" onClick={() => setStarted(true)}>Bắt đầu làm bài</button>
-            </div>
+            )}
           </div>
         ) : (
           <div className="bg-white p-4 rounded-3 shadow-sm">
             <div className="d-flex justify-content-between align-items-center mb-3">
-              <div>Trang {page}/{totalPages}</div>
-              <div className="badge bg-danger fs-6">⏱ {minutes}:{seconds.toString().padStart(2,'0')}</div>
+              <div>
+                <h6 className="mb-1">{currentExam.type || `Bài thi ${currentExam.id}`}</h6>
+                <small className="text-muted">Trang {page}/{totalPages}</small>
+              </div>
+              <div className="d-flex align-items-center gap-3">
+                <button className="btn btn-outline-secondary btn-sm" onClick={resetExam}>
+                  <i className="fas fa-times me-1"></i>Thoát
+                </button>
+                <div className="badge bg-danger fs-6">⏱ {minutes}:{seconds.toString().padStart(2,'0')}</div>
+              </div>
             </div>
             {pageQuestions.map((q, i) => (
               <div className="mb-3" key={q.id}>

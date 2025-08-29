@@ -52,6 +52,7 @@ public class ApiCourseController {
 
         Map<String, Object> response = new HashMap<>();
         response.put("course", course);
+        response.put("enrollmentCount", enrollmentService.getEnrollmentCountByCourseId(courseId));
 
         boolean isEnrolled = false;
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

@@ -23,6 +23,10 @@ import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Set;
 import org.springframework.web.multipart.MultipartFile;
+import com.pdh.pojo.Forum;
+import com.pdh.pojo.Exam;
+import com.pdh.pojo.Lecture;
+import com.pdh.pojo.Enrollment;
 
 /**
  *
@@ -52,7 +56,6 @@ public class Course implements Serializable {
     @Size(max = 45)
     @Column(name = "description")
     private String description;
-    // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Column(name = "price")
     private Double price;
     @Size(max = 45)

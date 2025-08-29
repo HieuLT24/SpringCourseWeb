@@ -107,12 +107,12 @@ function CourseDetail() {
             <div className="col-md-6">
               <img 
                 src={course.image || `https://picsum.photos/seed/d${id}/800/450`} 
-                alt={course.name} 
+                alt={course.title} 
                 className="img-fluid rounded-3 shadow" 
               />
             </div>
             <div className="col-md-6">
-              <h1 className="display-5 fw-bold mb-3">{course.name}</h1>
+              <h2 className="fw-bold mb-3" style={{fontSize: '2rem', lineHeight: 1.2}}>{course.title}</h2>
               <div className="badge bg-danger fs-6 mb-3">
                 {course.price?.toLocaleString('vi-VN')} VNĐ
               </div>

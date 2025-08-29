@@ -3,9 +3,9 @@ import { useParams } from 'react-router-dom';
 import { learningService } from '../../services/learningService';
 
 function PostDetail() {
-  const { id } = useParams();
-  const postId = parseInt(id);
-  const [courseId, setCourseId] = useState(null);
+  const { postId: postIdParam, id: courseIdParam } = useParams();
+  const postId = parseInt(postIdParam);
+  const courseId = parseInt(courseIdParam);
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [content, setContent] = useState('');
@@ -13,15 +13,25 @@ function PostDetail() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Giả sử courseId được lưu trong sessionStorage khi vào forum theo course
-    const cid = sessionStorage.getItem('currentCourseId');
-    if (cid) setCourseId(parseInt(cid));
-    loadPost(parseInt(cid));
-  }, [postId]);
+    if (courseId && !isNaN(courseId) && postId && !isNaN(postId)) {
+      sessionStorage.setItem('currentCourseId', courseId.toString());
+      loadPost(courseId);
+    } else {
+      setError('Thông tin khóa học hoặc bài viết không hợp lệ.');
+      setLoading(false);
+    }
+  }, [courseId, postId]);
 
   const loadPost = async (cid) => {
+    if (!cid || isNaN(cid)) {
+      setError('ID khóa học không hợp lệ');
+      setLoading(false);
+      return;
+    }
+    
     try {
       setLoading(true);
+      console.log('Loading post with courseId:', cid, 'postId:', postId);
       const res = await learningService.getPost(cid, postId);
       if (res.success) {
         setPost(res.data.post || res.data);

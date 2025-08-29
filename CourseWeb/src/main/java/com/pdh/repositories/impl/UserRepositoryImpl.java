@@ -62,15 +62,41 @@ public class UserRepositoryImpl implements UserRepository{
     public boolean isEmailExists(String email) {
         return getUserByEmail(email) != null;   
     }
+
+    @Override
+    public boolean isUsernameExistsExceptId(String username, int excludeId) {
+        Session s = this.factory.getObject().getCurrentSession();
+        Query<Long> q = s.createQuery("SELECT COUNT(u.id) FROM User u WHERE u.username = :u AND u.id <> :id", Long.class);
+        q.setParameter("u", username);
+        q.setParameter("id", excludeId);
+        Long c = q.uniqueResult();
+        return c != null && c > 0;
+    }
+
+    @Override
+    public boolean isEmailExistsExceptId(String email, int excludeId) {
+        Session s = this.factory.getObject().getCurrentSession();
+        Query<Long> q = s.createQuery("SELECT COUNT(u.id) FROM User u WHERE u.email = :e AND u.id <> :id", Long.class);
+        q.setParameter("e", email);
+        q.setParameter("id", excludeId);
+        Long c = q.uniqueResult();
+        return c != null && c > 0;
+    }
     
     @Override
-    public void createOrUpdateUser(User user) {
+    public void createOrUpdateUser(User user){
         Session s = this.factory.getObject().getCurrentSession();
         if (user.getId() != null) {
             s.merge(user);
         } else {
             s.persist(user);
         }
+    }
+
+    @Override
+    public void updateUser(User user) {
+        Session s = this.factory.getObject().getCurrentSession();
+        s.merge(user);
     }
 
     @Override

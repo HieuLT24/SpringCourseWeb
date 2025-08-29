@@ -1,10 +1,11 @@
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  */
 package com.pdh.services;
 
 import com.pdh.pojo.Payment;
+import com.pdh.dto.payment.CourseHistoryDto;
 import java.util.List;
 
 /**
@@ -18,6 +19,7 @@ public interface PaymentServices {
     Payment getPaymentById(int id);
     Payment getPaymentByTransactionId(String transactionId);
     List<Payment> getPaymentsByEnrollmentId(int enrollmentId);
+    List<CourseHistoryDto> getCourseHistoryByUserId(int userId);
     boolean verifyPayment(String transactionId);
     String createMoMoPaymentUrl(int paymentId, Double amount);
     String createVNPayPaymentUrl(int paymentId, Double amount);

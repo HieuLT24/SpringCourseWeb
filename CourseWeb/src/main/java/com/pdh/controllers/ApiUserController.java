@@ -18,20 +18,31 @@ import com.pdh.pojo.User;
 import com.pdh.services.UserServices;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/users")
 @CrossOrigin
 public class ApiUserController {
+
     @Autowired
     private UserServices userServices;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
         if (!request.getPassword().equals(request.getConfirmPassword())) {
             return ResponseEntity.badRequest().body("Mật khẩu xác nhận không khớp!");
         }
 
+        if (userServices.isUsernameExists(request.getUsername())) {
+            return ResponseEntity.badRequest().body("Tên đăng nhập đã tồn tại");
+        }
+        if (userServices.isEmailExists(request.getEmail())) {
+            return ResponseEntity.badRequest().body("Email đã tồn tại");
+        }
+
         User newUser = new User();
+        newUser.setName(request.getName());
         newUser.setUsername(request.getUsername());
         newUser.setPassword(request.getPassword());
         newUser.setEmail(request.getEmail());
@@ -50,8 +61,9 @@ public class ApiUserController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable int id) {
         User u = userServices.getUserById(id);
-        if (u == null)
+        if (u == null) {
             return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok(u);
     }
 
@@ -60,38 +72,41 @@ public class ApiUserController {
         User u = userServices.getUserByUsername(authentication.getName());
         return ResponseEntity.ok(u);
     }
-    
+
     @PutMapping("/me")
     public ResponseEntity<?> updateProfile(@RequestBody User updatedUser,
-                                           Authentication authentication) {
+            Authentication authentication) {
         User u = userServices.getUserByUsername(authentication.getName());
-        if (u == null)
+        if (u == null) {
             return ResponseEntity.status(401).body("Không tìm thấy user");
-
+        }
+        // Chỉ cho phép cập nhật name, email
         u.setEmail(updatedUser.getEmail());
         u.setName(updatedUser.getName());
-        userServices.createOrUpdateUser(u);
+        userServices.updateProfile(u);
 
         return ResponseEntity.ok("Cập nhật thành công!");
     }
 
     @PutMapping("/me/change-password")
-    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request,
-                                            Authentication authentication) {
+    public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordRequest request,
+            Authentication authentication) {
         User u = userServices.getUserByUsername(authentication.getName());
-        if (u == null)
+        if (u == null) {
             return ResponseEntity.status(401).body("Không tìm thấy user");
+        }
 
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {
             return ResponseEntity.badRequest().body("Mật khẩu xác nhận không khớp!");
         }
 
-        if (!u.getPassword().equals(request.getOldPassword())) {
+        // So sánh mật khẩu cũ bằng BCrypt
+        org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder encoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+        if (!encoder.matches(request.getOldPassword(), u.getPassword())) {
             return ResponseEntity.badRequest().body("Mật khẩu cũ không đúng!");
         }
 
-        u.setPassword(request.getNewPassword());
-        userServices.createOrUpdateUser(u);
+        userServices.changePassword(u, request.getNewPassword());
 
         return ResponseEntity.ok("Đổi mật khẩu thành công!");
     }

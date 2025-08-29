@@ -20,6 +20,8 @@ public interface UserServices extends UserDetailsService {
     boolean isUsernameExists(String username);
     boolean isEmailExists(String email);
     void createOrUpdateUser(User user);
+    void updateProfile(User user);
+    void changePassword(User user, String newPassword);
     List<User> getUsers();
     User getUserById(int id);
     void deleteUserById(int id);

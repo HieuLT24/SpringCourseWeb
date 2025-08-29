@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -22,6 +23,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Set;
+import com.pdh.pojo.Comment;
 
 /**
  *
@@ -59,7 +62,12 @@ public class Post implements Serializable {
     private Forum forumId;
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @ManyToOne
+    @JsonIgnore
     private User userId;
+    
+    @OneToMany(mappedBy = "postId")
+    @JsonIgnore
+    private Set<Comment> commentSet;
 
     public Post() {
     }
@@ -115,6 +123,14 @@ public class Post implements Serializable {
     public void setUserId(User userId) {
         this.userId = userId;
     }
+    
+    public Set<Comment> getCommentSet() {
+        return commentSet;
+    }
+
+    public void setCommentSet(Set<Comment> commentSet) {
+        this.commentSet = commentSet;
+    }
 
     @Override
     public int hashCode() {
@@ -125,7 +141,6 @@ public class Post implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
         if (!(object instanceof Post)) {
             return false;
         }

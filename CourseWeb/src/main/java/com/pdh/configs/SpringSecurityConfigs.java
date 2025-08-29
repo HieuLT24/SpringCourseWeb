@@ -101,7 +101,6 @@ public class SpringSecurityConfigs {
                 .failureUrl("/login?error=true").permitAll())
             .logout(logout
                 -> logout.logoutSuccessUrl("/login").permitAll());
-        // Trả 401 thay vì redirect /login cho các API
         http.exceptionHandling(ex -> ex
             .defaultAuthenticationEntryPointFor(
                 new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),

@@ -24,22 +24,22 @@ public class PostRepositoryImpl implements PostRepository {
     @Override
     public List<Post> getPostsByForumId(int forumId) {
         Session s = this.factory.getObject().getCurrentSession();
-        CriteriaBuilder b = s.getCriteriaBuilder();
-        CriteriaQuery<Post> query = b.createQuery(Post.class);
-        Root root = query.from(Post.class);
-        query.select(root);
-        
-        Predicate predicate = b.equal(root.get("forumId").get("id"), forumId);
-        query.where(predicate);
-        
-        Query q = s.createQuery(query);
+        // Sử dụng HQL với JOIN FETCH để lấy user data
+        String hql = "FROM Post p JOIN FETCH p.userId WHERE p.forumId.id = :forumId ORDER BY p.createdAt DESC";
+        Query q = s.createQuery(hql, Post.class);
+        q.setParameter("forumId", forumId);
         return q.getResultList();
     }
     
     @Override
     public Post getPostById(int id) {
         Session s = this.factory.getObject().getCurrentSession();
-        return s.find(Post.class, id);
+        // Sử dụng HQL với JOIN FETCH để lấy user data
+        String hql = "FROM Post p JOIN FETCH p.userId WHERE p.id = :id";
+        Query q = s.createQuery(hql, Post.class);
+        q.setParameter("id", id);
+        List<Post> results = q.getResultList();
+        return results.isEmpty() ? null : results.get(0);
     }
     
     @Override

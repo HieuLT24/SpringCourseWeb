@@ -30,16 +30,21 @@ function ResetPassword() {
     });
   };
 
+  const validate = () => {
+    const pwd = formData.password || '';
+    if (pwd.length < 6) return 'Mật khẩu phải có ít nhất 6 ký tự!';
+    const hasLetter = /[A-Za-z]/.test(pwd);
+    const hasDigit = /\d/.test(pwd);
+    if (!(hasLetter && hasDigit)) return 'Mật khẩu phải gồm cả chữ và số!';
+    if (formData.password !== formData.confirmPassword) return 'Mật khẩu xác nhận không khớp!';
+    return '';
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (formData.password !== formData.confirmPassword) {
-      setError('Mật khẩu xác nhận không khớp!');
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setError('Mật khẩu phải có ít nhất 6 ký tự!');
+    const v = validate();
+    if (v) {
+      setError(v);
       return;
     }
 
@@ -51,7 +56,6 @@ function ResetPassword() {
       const response = await authService.resetPassword(token, formData.password, formData.confirmPassword);
       setMessage(response.message || 'Mật khẩu đã được đặt lại thành công!');
       
-      // Redirect to login after 2 seconds
       setTimeout(() => {
         navigate('/login');
       }, 2000);
@@ -92,7 +96,7 @@ function ResetPassword() {
             <p className="text-muted">Nhập mật khẩu mới cho tài khoản của bạn</p>
           </div>
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} noValidate>
             {message && (
               <div className="alert alert-success" role="alert">
                 {message}

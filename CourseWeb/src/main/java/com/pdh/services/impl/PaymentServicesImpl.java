@@ -119,6 +119,11 @@ public class PaymentServicesImpl implements PaymentServices {
         return paymentRepository.getPaymentByTransactionId(transactionId);
     }
 
+    @Override
+    public List<com.pdh.dto.payment.CourseHistoryDto> getCourseHistoryByUserId(int userId) {
+        return paymentRepository.getCourseHistoryByUserId(userId);
+    }
+
     
 
     @Override

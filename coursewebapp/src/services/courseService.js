@@ -21,9 +21,9 @@ class CourseService {
     }
   }
 
-  async getCategories() {
+  async getCategories(page=1) {
     try {
-      const response = await axios.get(endpoints.courses.getCategories);
+      const response = await axios.get(endpoints.courses.getCategories, { params: { page } });
       const data = response.data;
       return Array.isArray(data) ? data : (data?.categories || []);
     } catch (error) {

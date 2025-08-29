@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin
@@ -34,7 +36,7 @@ public class ApiAuthController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
 
@@ -105,6 +107,10 @@ public class ApiAuthController {
             @RequestParam("password") String password,
             @RequestParam("confirmPassword") String confirmPassword) {
         try {
+            if (password == null || password.length() < 6) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("message", "Mật khẩu phải có ít nhất 6 ký tự!"));
+            }
             if (!password.equals(confirmPassword)) {
                 return ResponseEntity.badRequest()
                         .body(Map.of("message", "Mật khẩu xác nhận không khớp!"));

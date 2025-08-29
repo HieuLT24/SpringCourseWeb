@@ -59,4 +59,9 @@ public class EnrollmentServicesImpl implements EnrollmentServices {
     public List<Course> getEnrolledCourses(int userId) {
         return this.enrollmentRepo.getEnrolledCourses(userId);
     }
+
+    @Override
+    public long getEnrollmentCountByCourseId(int courseId) {
+        return this.enrollmentRepo.getEnrollmentCountByCourseId(courseId);
+    }
 }

@@ -17,7 +17,10 @@ public interface UserRepository {
     public User getUserByEmail(String email);
     public boolean isUsernameExists(String username);
     public boolean isEmailExists(String email);
+    public boolean isUsernameExistsExceptId(String username, int excludeId);
+    public boolean isEmailExistsExceptId(String email, int excludeId);
     public void createOrUpdateUser(User user);
+    public void updateUser(User user);
     public List<User> getUsers();
     public User getUserById(int id);
     public void deleteUserById(int id);

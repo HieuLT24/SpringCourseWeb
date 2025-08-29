@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "https://closely-tough-glowworm.ngrok-free.app/CourseWeb/api/";
+export const BASE_URL = "https://closely-tough-glowworm.ngrok-free.app/CourseWeb/api/";
 
 export const endpoints = {
     'auth': {

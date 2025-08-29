@@ -38,7 +38,6 @@ public class UserExam implements Serializable {
 
     @JoinColumn(name = "exam_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
-    @JsonIgnore
     private Exam examId;
 
     @Column(name = "start_time")

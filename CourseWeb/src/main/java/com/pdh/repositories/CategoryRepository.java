@@ -6,12 +6,14 @@ package com.pdh.repositories;
 
 import com.pdh.pojo.Category;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author duchi
  */
 public interface CategoryRepository {
-    public List<Category> getCates();
+    public List<Category> getCates(Map<String, String> params);
     public Category getCateById(int id);
+
 }

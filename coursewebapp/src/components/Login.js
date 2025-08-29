@@ -19,8 +19,25 @@ function Login() {
     });
   };
 
+  const validate = () => {
+    if (!formData.username || formData.username.trim().length < 3) {
+      return 'Tên đăng nhập phải có ít nhất 3 ký tự';
+    }
+    if (!formData.password || formData.password.length < 6) {
+      return 'Mật khẩu phải có ít nhất 6 ký tự';
+    }
+    return '';
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const v = validate();
+    if (v) {
+      setError(v);
+      return;
+    }
+
     setLoading(true);
     setError('');
 
@@ -48,7 +65,7 @@ function Login() {
             <p className="text-muted">Chào mừng bạn quay trở lại CourseWeb</p>
           </div>
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} noValidate>
             {error && (
               <div className="alert alert-danger" role="alert">
                 {error}
@@ -65,6 +82,7 @@ function Login() {
                 value={formData.username}
                 onChange={handleChange}
                 required
+                minLength={3}
               />
               <label htmlFor="username"><i className="fas fa-user me-2"></i>Tên đăng nhập</label>
             </div>
@@ -79,6 +97,7 @@ function Login() {
                 value={formData.password}
                 onChange={handleChange}
                 required
+                minLength={6}
               />
               <label htmlFor="password"><i className="fas fa-lock me-2"></i>Mật khẩu</label>
             </div>

@@ -60,6 +60,11 @@ function Header() {
                       </Link>
                     </li>
                     <li>
+                      <Link className="dropdown-item" to="/course-history">
+                        <i className="fas fa-history me-2"></i>Lịch sử khóa học
+                      </Link>
+                    </li>
+                    <li>
                       <Link className="dropdown-item" to="/profile">
                         <i className="fas fa-user-cog me-2"></i>Hồ sơ
                       </Link>

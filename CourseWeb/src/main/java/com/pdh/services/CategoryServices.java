@@ -6,12 +6,13 @@ package com.pdh.services;
 
 import com.pdh.pojo.Category;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author duchi
  */
 public interface CategoryServices {
-    public List<Category> getCates();
+    public List<Category> getCates(Map<String, String> params);
     public Category getCateById(int id);
 }

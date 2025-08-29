@@ -73,4 +73,13 @@ public class EnrollmentRepositoryImpl implements EnrollmentRepository {
         q.setParameter("userId", userId);
         return q.getResultList();
     }
+
+    @Override
+    public long getEnrollmentCountByCourseId(int courseId) {
+        Session s = this.factory.getObject().getCurrentSession();
+        String hql = "SELECT COUNT(e.id) FROM Enrollment e WHERE e.courseId.id = :courseId";
+        Query<Long> q = s.createQuery(hql, Long.class);
+        q.setParameter("courseId", courseId);
+        return q.getSingleResult();
+    }
 }

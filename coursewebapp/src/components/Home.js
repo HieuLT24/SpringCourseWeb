@@ -7,6 +7,8 @@ function Home() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [categories, setCategories] = useState([]);
+  const [catePage, setCatePage] = useState(1);
+  const [cateHasMore, setCateHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useState({
     kw: '',
@@ -17,19 +19,21 @@ function Home() {
 
   useEffect(() => {
     loadData();
-  }, [page]);
+  }, [page, catePage]);
 
   const loadData = async () => {
     try {
       const [coursesData, categoriesData] = await Promise.all([
         courseService.getAllCourses({ page }),
-        courseService.getCategories()
+        courseService.getCategories(catePage)
       ]);
       
       const items = coursesData.courses || [];
       setCourses(items);
       setHasMore(items.length === 12);
-      setCategories(Array.isArray(categoriesData) ? categoriesData : []);
+      const cateItems = Array.isArray(categoriesData) ? categoriesData : [];
+      setCategories(cateItems);
+      setCateHasMore(cateItems.length === 4 || cateItems.length === 12);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -104,26 +108,37 @@ function Home() {
             {categories.length === 0 ? (
               <p className="text-muted mb-0">Chưa có danh mục.</p>
             ) : (
-              <div className="row g-3">
-                {categories.map((cate) => (
-                  <div className="col-6 col-md-4 col-lg-3" key={cate.id}>
-                    <button
-                      type="button"
-                      className="w-100 btn btn-outline-primary d-flex align-items-center justify-content-between"
-                      onClick={() => {
-                        setSearchParams((prev) => ({ ...prev, cateId: String(cate.id) }));
-                        handleSearch();
-                      }}
-                    >
-                      <span className="text-start">
-                        <i className="fas fa-folder-open me-2"></i>
-                        {cate.name}
-                      </span>
-                      <i className="fas fa-arrow-right"></i>
-                    </button>
-                  </div>
-                ))}
-              </div>
+              <>
+                <div className="row g-3">
+                  {categories.map((cate) => (
+                    <div className="col-6 col-md-4 col-lg-3" key={cate.id}>
+                      <button
+                        type="button"
+                        className="w-100 btn btn-outline-primary d-flex align-items-center justify-content-between"
+                        onClick={() => {
+                          setSearchParams((prev) => ({ ...prev, cateId: String(cate.id) }));
+                          handleSearch();
+                        }}
+                      >
+                        <span className="text-start">
+                          <i className="fas fa-folder-open me-2"></i>
+                          {cate.name}
+                        </span>
+                        <i className="fas fa-arrow-right"></i>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <div className="d-flex justify-content-center align-items-center gap-2 mt-3">
+                  <button className="btn btn-outline-secondary" disabled={catePage === 1 || loading} onClick={() => setCatePage((p) => Math.max(1, p - 1))}>
+                    <i className="fas fa-chevron-left me-1"></i>
+                  </button>
+                  <span className="px-2">Trang danh mục: {catePage}</span>
+                  <button className="btn btn-outline-primary" disabled={!cateHasMore || loading} onClick={() => setCatePage((p) => p + 1)}>
+                    <i className="fas fa-chevron-right ms-1"></i>
+                  </button>
+                </div>
+              </>
             )}
           </div>
           {/* Search Card */}
@@ -228,7 +243,7 @@ function Home() {
                           style={{width:'100%',height:200,objectFit:'cover',background:'#f8f9fa'}} 
                         />
                         <div className="position-absolute top-0 end-0 m-3">
-                          <span className="badge bg-warning text-dark">
+                          <span className="badge bg-danger text-white fs-5 px-3 py-2">
                             {course.price ? course.price.toLocaleString('vi-VN') + ' VNĐ' : 'Miễn phí'}
                           </span>
                         </div>
@@ -236,7 +251,7 @@ function Home() {
                       <div className="p-3">
                         <h5 className="mb-2">
                           <Link to={`/courses/${course.id}`} className="text-decoration-none text-dark">
-                            {course.name}
+                            {course.title}
                           </Link>
                         </h5>
                         <p className="text-muted mb-3">

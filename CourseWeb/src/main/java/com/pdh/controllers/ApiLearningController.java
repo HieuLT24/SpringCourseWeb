@@ -5,6 +5,10 @@ import com.pdh.pojo.Lecture;
 import com.pdh.pojo.Exam;
 import com.pdh.pojo.Forum;
 import com.pdh.pojo.Post;
+import com.pdh.dto.forum.CommentDto;
+import com.pdh.dto.forum.PostDto;
+import com.pdh.pojo.Comment;
+
 import java.util.List;
 import com.pdh.pojo.User;
 import com.pdh.services.CourseServices;
@@ -13,6 +17,7 @@ import com.pdh.services.LectureServices;
 import com.pdh.services.ExamServices;
 import com.pdh.services.ForumServices;
 import com.pdh.services.PostServices;
+import com.pdh.services.CommentServices;
 import com.pdh.services.QuestionServices;
 import com.pdh.services.UserServices;
 import com.pdh.services.UserExamServices;
@@ -42,6 +47,7 @@ public class ApiLearningController {
     @Autowired private ExamServices examService;
     @Autowired private ForumServices forumService;
     @Autowired private PostServices postService;
+    @Autowired private CommentServices commentService;
     @Autowired private EnrollmentServices enrollmentService;
     @Autowired private UserServices userServices;
     @Autowired private QuestionServices questionServices;
@@ -130,7 +136,6 @@ public class ApiLearningController {
             return ResponseEntity.notFound().build();
 
         Map<String, Object> result = new HashMap<>();
-        // Trả thông tin cơ bản của bài thi, bao gồm thời gian làm bài
         Map<String, Object> examInfo = new HashMap<>();
         examInfo.put("id", exam.getId());
         examInfo.put("type", exam.getType());
@@ -207,7 +212,7 @@ public class ApiLearningController {
         Map<String, Object> response = new HashMap<>();
         response.put("course", course);
         response.put("forum", forum);
-        response.put("posts", postService.getPostsByForumId(forum.getId()));
+        response.put("posts", postService.getPostsDtoByForumId(forum.getId()));
 
         return ResponseEntity.ok(response);
     }
@@ -220,7 +225,7 @@ public class ApiLearningController {
         if (course == null || forum == null)
             return ResponseEntity.notFound().build();
 
-        List<Post> posts = postService.getPostsByForumId(forum.getId());
+        List<PostDto> posts = postService.getPostsDtoByForumId(forum.getId());
         return ResponseEntity.ok(posts);
     }
 
@@ -255,24 +260,31 @@ public class ApiLearningController {
 
         postService.addOrUpdate(newPost);
 
-        return ResponseEntity.ok(newPost);
+        // Trả về PostDto thay vì Post
+        PostDto postDto = postService.getPostDtoById(newPost.getId());
+        return ResponseEntity.ok(postDto);
     }
 
     @GetMapping("/course/{courseId}/forum/post/{postId}")
     public ResponseEntity<?> viewPost(@PathVariable int courseId, @PathVariable int postId) {
         Course course = courseService.getCourseById(courseId);
-        Post post = postService.getPostById(postId);
+        PostDto post = postService.getPostDtoById(postId);
 
         if (course == null || post == null)
             return ResponseEntity.notFound().build();
 
-        if (!post.getForumId().getCourseId().getId().equals(course.getId()))
+        // Kiểm tra xem post có thuộc course này không
+        // Lấy post gốc để kiểm tra forum
+        Post originalPost = postService.getPostById(postId);
+        if (originalPost == null || !originalPost.getForumId().getCourseId().getId().equals(course.getId())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Post không thuộc course này.");
+        }
 
         Map<String, Object> response = new HashMap<>();
         response.put("course", course);
-        response.put("forum", post.getForumId());
+        response.put("forum", originalPost.getForumId());
         response.put("post", post);
+        response.put("comments", commentService.getCommentsDtoByPostId(postId));
 
         return ResponseEntity.ok(response);
     }
@@ -292,7 +304,61 @@ public class ApiLearningController {
         return ResponseEntity.ok(response);
     }
 
-    
+    @PostMapping("/course/{courseId}/forum/post/{postId}/comments")
+    public ResponseEntity<?> createComment(@PathVariable int courseId, 
+                                          @PathVariable int postId,
+                                          @RequestBody Map<String, String> payload,
+                                          Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated())
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Bạn cần đăng nhập.");
+
+        User currentUser = userServices.getUserByUsername(authentication.getName());
+        if (currentUser == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Không tìm thấy user.");
+
+        Course course = courseService.getCourseById(courseId);
+        Post post = postService.getPostById(postId);
+
+        if (course == null || post == null)
+            return ResponseEntity.notFound().build();
+
+        if (!post.getForumId().getCourseId().getId().equals(course.getId()))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Post không thuộc course này.");
+
+        if (!enrollmentService.isUserEnrolled(currentUser.getId(), courseId))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Bạn chưa đăng ký khóa học.");
+
+        String content = payload.get("content");
+        if (content == null || content.trim().isEmpty())
+            return ResponseEntity.badRequest().body("Nội dung bình luận không được để trống.");
+
+        Comment newComment = new Comment();
+        newComment.setContent(content.trim());
+        newComment.setPostId(post);
+        newComment.setUserId(currentUser);
+        newComment.setCreatedAt(new Date());
+
+        commentService.addOrUpdate(newComment);
+
+        // Trả về CommentDto thay vì Comment
+        CommentDto commentDto = commentService.getCommentDtoById(newComment.getId());
+        return ResponseEntity.ok(commentDto);
+    }
+
+    @GetMapping("/course/{courseId}/forum/post/{postId}/comments")
+    public ResponseEntity<?> getPostComments(@PathVariable int courseId, @PathVariable int postId) {
+        Course course = courseService.getCourseById(courseId);
+        Post post = postService.getPostById(postId);
+
+        if (course == null || post == null)
+            return ResponseEntity.notFound().build();
+
+        if (!post.getForumId().getCourseId().getId().equals(course.getId()))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Post không thuộc course này.");
+
+        List<CommentDto> comments = commentService.getCommentsDtoByPostId(postId);
+        return ResponseEntity.ok(comments);
+    }
 
 }
 

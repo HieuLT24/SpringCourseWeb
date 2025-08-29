@@ -38,9 +38,9 @@ public class ApiAdminController {
     private StatsServices statsService;
 
     @GetMapping("/categories")
-    public ResponseEntity<List<Category>> getCategories() {
+    public ResponseEntity<List<Category>> getCategories(@RequestParam Map<String, String> params) {
         try {
-            return ResponseEntity.ok(categoryService.getCates());
+            return ResponseEntity.ok(categoryService.getCates(params));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(java.util.Collections.emptyList());
         }
