@@ -40,11 +40,16 @@ public class Answer implements Serializable {
     @NotNull
     @Column(name = "id")
     private Integer id;
-    @Size(max = 45)
+    
+    @Size(max = 500)
     @Column(name = "content")
     private String content;
+    
     @Column(name = "is_true")
     private Short isTrue;
+    
+
+    
     @JoinColumn(name = "question_id", referencedColumnName = "id")
     @ManyToOne
     @JsonIgnore

@@ -114,4 +114,13 @@ public class CourseRepositoryImpl implements CourseRepository{
             s.persist(course);
         }
     }
+    
+    @Override
+    public List<Course> getCoursesByTeacher(Integer teacherId) {
+        Session s = this.factory.getObject().getCurrentSession();
+        String hql = "SELECT c FROM Course c WHERE c.teacherId.id = :teacherId ORDER BY c.status, c.id DESC";
+        Query q = s.createQuery(hql, Course.class);
+        q.setParameter("teacherId", teacherId);
+        return q.getResultList();
+    }
 }

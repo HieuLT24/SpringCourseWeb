@@ -17,4 +17,5 @@ public interface CourseRepository {
     public void deleteCourse(int id);
     public Course getCourseById(int id);
     public void addOrUpdate(Course course);
+    public List<Course> getCoursesByTeacher(Integer teacherId);
 }

@@ -20,6 +20,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Set;
 
 /**
@@ -41,20 +42,39 @@ public class Exam implements Serializable {
     @NotNull
     @Column(name = "id")
     private Integer id;
+    
+    @Size(max = 255)
+    @Column(name = "title")
+    private String title;
+    
+    @Size(max = 1000)
+    @Column(name = "description")
+    private String description;
+    
     @Size(max = 45)
     @Column(name = "type")
     private String type;
+    
+    @Column(name = "start_date")
+    private Date startDate;
+    
+    @Column(name = "end_date")
+    private Date endDate;
+    
+    @Column(name = "is_active")
+    private Boolean isActive;
+    
     @JoinColumn(name = "course_id", referencedColumnName = "id")
     @ManyToOne
     @JsonIgnore
     private Course courseId;
-    @OneToMany(mappedBy = "examId")
+    
+    @OneToMany(mappedBy = "examId", fetch = jakarta.persistence.FetchType.EAGER)
     @JsonIgnore
     private Set<Question> questionSet;
 
-    @OneToMany(mappedBy = "examId")
+    @OneToMany(mappedBy = "examId", fetch = jakarta.persistence.FetchType.EAGER)
     @JsonIgnore
-
     private Set<UserExam> userExamSet;
 
     @Column(name = "duration_minutes")
@@ -75,12 +95,52 @@ public class Exam implements Serializable {
         this.id = id;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public String getType() {
         return type;
     }
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
     }
 
     public Course getCourseId() {
@@ -139,5 +199,4 @@ public class Exam implements Serializable {
     public String toString() {
         return "com.pdh.pojo.Exam[ id=" + id + " ]";
     }
-
 }

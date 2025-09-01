@@ -5,8 +5,13 @@ import com.pdh.pojo.Lecture;
 import com.pdh.pojo.Exam;
 import com.pdh.pojo.Forum;
 import com.pdh.pojo.Post;
+import com.pdh.pojo.Question;
+import com.pdh.pojo.Answer;
 import com.pdh.dto.forum.CommentDto;
 import com.pdh.dto.forum.PostDto;
+import com.pdh.dto.exam.ExamDto;
+import com.pdh.dto.exam.QuestionDto;
+import com.pdh.dto.exam.AnswerDto;
 import com.pdh.pojo.Comment;
 
 import java.util.List;
@@ -19,6 +24,7 @@ import com.pdh.services.ForumServices;
 import com.pdh.services.PostServices;
 import com.pdh.services.CommentServices;
 import com.pdh.services.QuestionServices;
+import com.pdh.services.AnswerServices;
 import com.pdh.services.UserServices;
 import com.pdh.services.UserExamServices;
 
@@ -31,27 +37,45 @@ import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.multipart.MultipartFile;
+import com.pdh.dto.lecture.LectureRequest;
 
 @RestController
 @RequestMapping("/api/learning")
 @CrossOrigin
 public class ApiLearningController {
-    @Autowired private CourseServices courseService;
-    @Autowired private LectureServices lectureService;
-    @Autowired private ExamServices examService;
-    @Autowired private ForumServices forumService;
-    @Autowired private PostServices postService;
-    @Autowired private CommentServices commentService;
-    @Autowired private EnrollmentServices enrollmentService;
-    @Autowired private UserServices userServices;
-    @Autowired private QuestionServices questionServices;
-    @Autowired private UserExamServices userExamServices;
+    @Autowired
+    private CourseServices courseService;
+    @Autowired
+    private LectureServices lectureService;
+    @Autowired
+    private ExamServices examService;
+    @Autowired
+    private ForumServices forumService;
+    @Autowired
+    private PostServices postService;
+    @Autowired
+    private CommentServices commentService;
+    @Autowired
+    private EnrollmentServices enrollmentService;
+    @Autowired
+    private UserServices userServices;
+    @Autowired
+    private QuestionServices questionServices;
+    @Autowired
+    private AnswerServices answerServices;
+    @Autowired
+    private UserExamServices userExamServices;
 
     @GetMapping("/course/{courseId}")
     public ResponseEntity<?> learningDashboard(@PathVariable int courseId, Authentication authentication) {
@@ -77,15 +101,6 @@ public class ApiLearningController {
         return ResponseEntity.ok(lectureService.getLecturesByCourseId(courseId));
     }
 
-    @GetMapping("/course/{courseId}/exams")
-    public ResponseEntity<?> getExams(@PathVariable int courseId) {
-        Course course = courseService.getCourseById(courseId);
-        if (course == null)
-            return ResponseEntity.notFound().build();
-
-        return ResponseEntity.ok(examService.getExamsByCourseId(courseId));
-    }
-
     @GetMapping("/course/{courseId}/lecture/{lectureId}")
     public ResponseEntity<?> viewLecture(@PathVariable int courseId, @PathVariable int lectureId) {
         Course course = courseService.getCourseById(courseId);
@@ -102,6 +117,117 @@ public class ApiLearningController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/course/{courseId}/lectures")
+    public ResponseEntity<?> createLecture(@PathVariable int courseId,
+            @RequestParam("content") String content,
+            @RequestParam(value = "video", required = false) MultipartFile video,
+            @RequestParam(value = "attachment", required = false) MultipartFile attachment) {
+        try {
+            LectureRequest request = new LectureRequest();
+            request.setContent(content);
+            request.setVideo(video);
+            request.setAttachment(attachment);
+            request.setCourseId(courseId);
+
+            Lecture newLecture = lectureService.createLecture(request);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Tạo bài giảng thành công!");
+            response.put("lecture", newLecture);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Lỗi khi tạo bài giảng: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    @PutMapping("/course/{courseId}/lecture/{lectureId}")
+    public ResponseEntity<?> updateLecture(@PathVariable int courseId,
+            @PathVariable int lectureId,
+            @RequestParam("content") String content,
+            @RequestParam(value = "video", required = false) MultipartFile video,
+            @RequestParam(value = "attachment", required = false) MultipartFile attachment) {
+        try {
+            LectureRequest request = new LectureRequest();
+            request.setContent(content);
+            request.setVideo(video);
+            request.setAttachment(attachment);
+            request.setCourseId(courseId);
+
+            Lecture updatedLecture = lectureService.updateLecture(lectureId, request);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Cập nhật bài giảng thành công!");
+            response.put("lecture", updatedLecture);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Lỗi khi cập nhật bài giảng: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    @DeleteMapping("/course/{courseId}/lecture/{lectureId}")
+    public ResponseEntity<?> deleteLecture(@PathVariable int courseId, @PathVariable int lectureId) {
+        try {
+            // Kiểm tra quyền trước khi xóa
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
+                return ResponseEntity.status(401).body("Bạn cần đăng nhập để thực hiện chức năng này");
+            }
+
+            String username = auth.getName();
+            User currentUser = userServices.getUserByUsername(username);
+
+            if (currentUser == null) {
+                return ResponseEntity.status(400).body("Không tìm thấy thông tin người dùng");
+            }
+
+            // Kiểm tra xem user có phải là teacher của course này không
+            Course course = courseService.getCourseById(courseId);
+            if (course == null) {
+                return ResponseEntity.status(404).body("Không tìm thấy khóa học");
+            }
+
+            if (!currentUser.getId().equals(course.getTeacherId().getId())) {
+                return ResponseEntity.status(403).body("Bạn không có quyền xóa bài giảng này");
+            }
+
+            lectureService.deleteLecture(lectureId);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Xóa bài giảng thành công!");
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Lỗi khi xóa bài giảng: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+    
+
+    @GetMapping("/course/{courseId}/exams")
+    public ResponseEntity<?> getExams(@PathVariable int courseId) {
+        Course course = courseService.getCourseById(courseId);
+        if (course == null)
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(examService.getExamsByCourseId(courseId));
+    }
+
     @GetMapping("/course/{courseId}/exam/{examId}")
     public ResponseEntity<?> takeExam(@PathVariable int courseId, @PathVariable int examId) {
         Course course = courseService.getCourseById(courseId);
@@ -115,21 +241,26 @@ public class ApiLearningController {
         response.put("exam", exam);
         try {
             java.math.BigDecimal best = null;
-            org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder
+                    .getContext().getAuthentication();
             if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
                 User u = userServices.getUserByUsername(auth.getName());
                 if (u != null) {
                     best = userExamServices.findBestScore(u.getId(), examId);
                 }
             }
-            if (best != null) response.put("bestScore", best);
-        } catch (Exception ignored) {}
+            if (best != null)
+                response.put("bestScore", best);
+        } catch (Exception ignored) {
+        }
 
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/course/{courseId}/exam/{examId}/questions")
-    public ResponseEntity<?> getExamQuestions(@PathVariable int courseId, @PathVariable int examId) {
+    public ResponseEntity<?> getExamQuestions(@PathVariable int courseId, @PathVariable int examId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int limit) {
         Course course = courseService.getCourseById(courseId);
         Exam exam = examService.getExamById(examId);
         if (course == null || exam == null)
@@ -141,15 +272,23 @@ public class ApiLearningController {
         examInfo.put("type", exam.getType());
         examInfo.put("durationMinutes", exam.getDurationMinutes());
         result.put("exam", examInfo);
-        result.put("questions", questionServices.getQuestionsByExamId(examId));
+        
+        // Lấy câu hỏi có phân trang
+        Map<String, Object> questionsData = questionServices.getQuestionsByExamIdWithPagination(examId, page, limit);
+        result.put("questions", questionsData.get("questions"));
+        result.put("total", questionsData.get("total"));
+        result.put("totalPages", questionsData.get("totalPages"));
+        result.put("currentPage", page);
+        result.put("limit", limit);
+        
         return ResponseEntity.ok(result);
     }
 
     @PostMapping("/course/{courseId}/exam/{examId}/submit")
     public ResponseEntity<?> submitExam(@PathVariable int courseId,
-                                        @PathVariable int examId,
-                                        @RequestBody Map<String, Object> payload,
-                                        Authentication authentication) {
+            @PathVariable int examId,
+            @RequestBody Map<String, Object> payload,
+            Authentication authentication) {
         Exam exam = examService.getExamById(examId);
         Course course = courseService.getCourseById(courseId);
         if (course == null || exam == null)
@@ -167,16 +306,19 @@ public class ApiLearningController {
         for (var q : questionServices.getQuestionsByExamId(examId)) {
             totalQuestions++;
             Object aIdObj = ansMap.get(String.valueOf(q.getId()));
-            if (aIdObj == null) continue;
+            if (aIdObj == null)
+                continue;
             try {
                 int aId = Integer.parseInt(aIdObj.toString());
-                boolean isTrue = q.getAnswerSet().stream().anyMatch(a -> a.getId() == aId && a.getIsTrue() != null && a.getIsTrue() == 1);
-                if (isTrue) totalCorrect++;
-            } catch (NumberFormatException ignored) {}
+                boolean isTrue = q.getAnswerSet().stream()
+                        .anyMatch(a -> a.getId() == aId && a.getIsTrue() != null && a.getIsTrue() == 1);
+                if (isTrue)
+                    totalCorrect++;
+            } catch (NumberFormatException ignored) {
+            }
         }
 
         double score = totalQuestions > 0 ? (totalCorrect * 10.0 / totalQuestions) : 0.0;
-        // Lưu UserExam
         try {
             if (authentication != null && authentication.isAuthenticated()) {
                 com.pdh.pojo.User user = userServices.getUserByUsername(authentication.getName());
@@ -231,8 +373,8 @@ public class ApiLearningController {
 
     @PostMapping("/course/{courseId}/forum/post")
     public ResponseEntity<?> createPost(@PathVariable int courseId,
-                                        @RequestBody Map<String, String> payload,
-                                        Authentication authentication) {
+            @RequestBody Map<String, String> payload,
+            Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated())
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Bạn cần đăng nhập.");
 
@@ -305,10 +447,10 @@ public class ApiLearningController {
     }
 
     @PostMapping("/course/{courseId}/forum/post/{postId}/comments")
-    public ResponseEntity<?> createComment(@PathVariable int courseId, 
-                                          @PathVariable int postId,
-                                          @RequestBody Map<String, String> payload,
-                                          Authentication authentication) {
+    public ResponseEntity<?> createComment(@PathVariable int courseId,
+            @PathVariable int postId,
+            @RequestBody Map<String, String> payload,
+            Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated())
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Bạn cần đăng nhập.");
 
@@ -340,7 +482,6 @@ public class ApiLearningController {
 
         commentService.addOrUpdate(newComment);
 
-        // Trả về CommentDto thay vì Comment
         CommentDto commentDto = commentService.getCommentDtoById(newComment.getId());
         return ResponseEntity.ok(commentDto);
     }
@@ -360,6 +501,489 @@ public class ApiLearningController {
         return ResponseEntity.ok(comments);
     }
 
+    @PostMapping("/course/{courseId}/exams")
+    public ResponseEntity<?> createExam(@PathVariable int courseId,
+            @RequestBody Map<String, Object> payload,
+            Authentication authentication) {
+        try {
+            // Kiểm tra quyền
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(401).body("Bạn cần đăng nhập để thực hiện chức năng này");
+            }
+
+            String username = authentication.getName();
+            User currentUser = userServices.getUserByUsername(username);
+
+            if (currentUser == null) {
+                return ResponseEntity.status(400).body("Không tìm thấy thông tin người dùng");
+            }
+
+            // Kiểm tra xem user có phải là teacher của course này không
+            Course course = courseService.getCourseById(courseId);
+            if (course == null) {
+                return ResponseEntity.status(404).body("Không tìm thấy khóa học");
+            }
+
+            if (!currentUser.getId().equals(course.getTeacherId().getId())) {
+                return ResponseEntity.status(403).body("Bạn không có quyền tạo bài kiểm tra cho khóa học này");
+            }
+
+            // Tạo exam mới
+            Exam newExam = new Exam();
+            newExam.setTitle((String) payload.get("title"));
+            newExam.setDescription((String) payload.get("description"));
+            newExam.setType((String) payload.get("type"));
+            newExam.setStartDate(payload.get("startDate") != null ? new Date((Long) payload.get("startDate")) : null);
+            newExam.setEndDate(payload.get("endDate") != null ? new Date((Long) payload.get("endDate")) : null);
+            newExam.setDurationMinutes((Integer) payload.get("durationMinutes"));
+            newExam.setIsActive(true);
+            newExam.setCourseId(course);
+
+            Exam createdExam = examService.createExam(newExam);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Tạo bài kiểm tra thành công!");
+            response.put("exam", new ExamDto(createdExam));
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Lỗi khi tạo bài kiểm tra: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    @PutMapping("/course/{courseId}/exam/{examId}")
+    public ResponseEntity<?> updateExam(@PathVariable int courseId,
+            @PathVariable int examId,
+            @RequestBody Map<String, Object> payload,
+            Authentication authentication) {
+        try {
+            // Kiểm tra quyền
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(401).body("Bạn cần đăng nhập để thực hiện chức năng này");
+            }
+
+            String username = authentication.getName();
+            User currentUser = userServices.getUserByUsername(username);
+
+            if (currentUser == null) {
+                return ResponseEntity.status(400).body("Không tìm thấy thông tin người dùng");
+            }
+
+            // Kiểm tra xem user có phải là teacher của course này không
+            Course course = courseService.getCourseById(courseId);
+            if (course == null) {
+                return ResponseEntity.status(404).body("Không tìm thấy khóa học");
+            }
+
+            if (!currentUser.getId().equals(course.getTeacherId().getId())) {
+                return ResponseEntity.status(403).body("Bạn không có quyền cập nhật bài kiểm tra này");
+            }
+
+            // Cập nhật exam
+            Exam examToUpdate = new Exam();
+            examToUpdate.setTitle((String) payload.get("title"));
+            examToUpdate.setDescription((String) payload.get("description"));
+            examToUpdate.setType((String) payload.get("type"));
+            examToUpdate
+                    .setStartDate(payload.get("startDate") != null ? new Date((Long) payload.get("startDate")) : null);
+            examToUpdate.setEndDate(payload.get("endDate") != null ? new Date((Long) payload.get("endDate")) : null);
+            examToUpdate.setDurationMinutes((Integer) payload.get("durationMinutes"));
+            examToUpdate.setIsActive((Boolean) payload.get("isActive"));
+
+            Exam updatedExam = examService.updateExam(examId, examToUpdate);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Cập nhật bài kiểm tra thành công!");
+            response.put("exam", new ExamDto(updatedExam));
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Lỗi khi cập nhật bài kiểm tra: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    @DeleteMapping("/course/{courseId}/exam/{examId}")
+    public ResponseEntity<?> deleteExam(@PathVariable int courseId, @PathVariable int examId) {
+        try {
+            // Kiểm tra quyền
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
+                return ResponseEntity.status(401).body("Bạn cần đăng nhập để thực hiện chức năng này");
+            }
+
+            String username = auth.getName();
+            User currentUser = userServices.getUserByUsername(username);
+
+            if (currentUser == null) {
+                return ResponseEntity.status(400).body("Không tìm thấy thông tin người dùng");
+            }
+
+            // Kiểm tra xem user có phải là teacher của course này không
+            Course course = courseService.getCourseById(courseId);
+            if (course == null) {
+                return ResponseEntity.status(404).body("Không tìm thấy khóa học");
+            }
+
+            if (!currentUser.getId().equals(course.getTeacherId().getId())) {
+                return ResponseEntity.status(403).body("Bạn không có quyền xóa bài kiểm tra này");
+            }
+
+            examService.deleteExam(examId);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Xóa bài kiểm tra thành công!");
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Lỗi khi xóa bài kiểm tra: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    // ==================== QUESTION MANAGEMENT ====================
+
+    @PostMapping("/course/{courseId}/exam/{examId}/questions")
+    public ResponseEntity<?> createQuestion(@PathVariable int courseId,
+            @PathVariable int examId,
+            @RequestBody Map<String, Object> payload,
+            Authentication authentication) {
+        try {
+            // Kiểm tra quyền
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(401).body("Bạn cần đăng nhập để thực hiện chức năng này");
+            }
+
+            String username = authentication.getName();
+            User currentUser = userServices.getUserByUsername(username);
+
+            if (currentUser == null) {
+                return ResponseEntity.status(400).body("Không tìm thấy thông tin người dùng");
+            }
+
+            // Kiểm tra xem user có phải là teacher của course này không
+            Course course = courseService.getCourseById(courseId);
+            if (course == null) {
+                return ResponseEntity.status(404).body("Không tìm thấy khóa học");
+            }
+
+            if (!currentUser.getId().equals(course.getTeacherId().getId())) {
+                return ResponseEntity.status(403).body("Bạn không có quyền tạo câu hỏi cho khóa học này");
+            }
+
+            // Tạo question mới
+            Question newQuestion = new Question();
+            newQuestion.setContent((String) payload.get("content"));
+            newQuestion.setPoints((Integer) payload.get("points"));
+            Exam exam = examService.getExamById(examId);
+            if (exam == null) {
+                return ResponseEntity.status(404).body("Không tìm thấy bài kiểm tra");
+            }
+            newQuestion.setExamId(exam);
+
+            Question createdQuestion = questionServices.createQuestion(newQuestion);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Tạo câu hỏi thành công!");
+            response.put("question", new QuestionDto(createdQuestion));
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Lỗi khi tạo câu hỏi: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    @PutMapping("/course/{courseId}/exam/{examId}/question/{questionId}")
+    public ResponseEntity<?> updateQuestion(@PathVariable int courseId,
+            @PathVariable int examId,
+            @PathVariable int questionId,
+            @RequestBody Map<String, Object> payload,
+            Authentication authentication) {
+        try {
+            // Kiểm tra quyền
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(401).body("Bạn cần đăng nhập để thực hiện chức năng này");
+            }
+
+            String username = authentication.getName();
+            User currentUser = userServices.getUserByUsername(username);
+
+            if (currentUser == null) {
+                return ResponseEntity.status(400).body("Không tìm thấy thông tin người dùng");
+            }
+
+            // Kiểm tra xem user có phải là teacher của course này không
+            Course course = courseService.getCourseById(courseId);
+            if (course == null) {
+                return ResponseEntity.status(404).body("Không tìm thấy khóa học");
+            }
+
+            if (!currentUser.getId().equals(course.getTeacherId().getId())) {
+                return ResponseEntity.status(403).body("Bạn không có quyền cập nhật câu hỏi này");
+            }
+
+            // Cập nhật question
+            Question questionToUpdate = new Question();
+            questionToUpdate.setContent((String) payload.get("content"));
+            questionToUpdate.setPoints((Integer) payload.get("points"));
+            Question updatedQuestion = questionServices.updateQuestion(questionId, questionToUpdate);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Cập nhật câu hỏi thành công!");
+            response.put("question", new QuestionDto(updatedQuestion));
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Lỗi khi cập nhật câu hỏi: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    @DeleteMapping("/course/{courseId}/exam/{examId}/question/{questionId}")
+    public ResponseEntity<?> deleteQuestion(@PathVariable int courseId,
+            @PathVariable int examId,
+            @PathVariable int questionId) {
+        try {
+            // Kiểm tra quyền
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
+                return ResponseEntity.status(401).body("Bạn cần đăng nhập để thực hiện chức năng này");
+            }
+
+            String username = auth.getName();
+            User currentUser = userServices.getUserByUsername(username);
+
+            if (currentUser == null) {
+                return ResponseEntity.status(400).body("Không tìm thấy thông tin người dùng");
+            }
+
+            // Kiểm tra xem user có phải là teacher của course này không
+            Course course = courseService.getCourseById(courseId);
+            if (course == null) {
+                return ResponseEntity.status(404).body("Không tìm thấy khóa học");
+            }
+
+            if (!currentUser.getId().equals(course.getTeacherId().getId())) {
+                return ResponseEntity.status(403).body("Bạn không có quyền xóa câu hỏi này");
+            }
+
+            questionServices.deleteQuestion(questionId);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Xóa câu hỏi thành công!");
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Lỗi khi xóa câu hỏi: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    // ==================== ANSWER MANAGEMENT ====================
+
+    @PostMapping("/course/{courseId}/exam/{examId}/question/{questionId}/answers")
+    public ResponseEntity<?> createAnswer(@PathVariable int courseId,
+            @PathVariable int examId,
+            @PathVariable int questionId,
+            @RequestBody Map<String, Object> payload,
+            Authentication authentication) {
+        try {
+            // Kiểm tra quyền
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(401).body("Bạn cần đăng nhập để thực hiện chức năng này");
+            }
+
+            String username = authentication.getName();
+            User currentUser = userServices.getUserByUsername(username);
+
+            if (currentUser == null) {
+                return ResponseEntity.status(400).body("Không tìm thấy thông tin người dùng");
+            }
+
+            // Kiểm tra xem user có phải là teacher của course này không
+            Course course = courseService.getCourseById(courseId);
+            if (course == null) {
+                return ResponseEntity.status(404).body("Không tìm thấy khóa học");
+            }
+
+            if (!currentUser.getId().equals(course.getTeacherId().getId())) {
+                return ResponseEntity.status(403).body("Bạn không có quyền tạo đáp án cho khóa học này");
+            }
+
+            // Tạo answer mới
+            Answer newAnswer = new Answer();
+            newAnswer.setContent((String) payload.get("content"));
+
+            // Xử lý chuyển đổi isTrue từ Integer sang Short
+            Object isTrueObj = payload.get("isTrue");
+            Short isTrue = null;
+            if (isTrueObj != null) {
+                if (isTrueObj instanceof Integer) {
+                    isTrue = ((Integer) isTrueObj).shortValue();
+                } else if (isTrueObj instanceof Short) {
+                    isTrue = (Short) isTrueObj;
+                } else {
+                    isTrue = Short.valueOf(isTrueObj.toString());
+                }
+            }
+            newAnswer.setIsTrue(isTrue);
+
+            Question question = questionServices.getQuestionById(questionId);
+            if (question == null) {
+                return ResponseEntity.status(404).body("Không tìm thấy câu hỏi");
+            }
+            newAnswer.setQuestionId(question);
+
+            Answer createdAnswer = answerServices.createAnswer(newAnswer);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Tạo đáp án thành công!");
+            response.put("answer", new AnswerDto(createdAnswer));
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Lỗi khi tạo đáp án: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    @PutMapping("/course/{courseId}/exam/{examId}/question/{questionId}/answer/{answerId}")
+    public ResponseEntity<?> updateAnswer(@PathVariable int courseId,
+            @PathVariable int examId,
+            @PathVariable int questionId,
+            @PathVariable int answerId,
+            @RequestBody Map<String, Object> payload,
+            Authentication authentication) {
+        try {
+            // Kiểm tra quyền
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(401).body("Bạn cần đăng nhập để thực hiện chức năng này");
+            }
+
+            String username = authentication.getName();
+            User currentUser = userServices.getUserByUsername(username);
+
+            if (currentUser == null) {
+                return ResponseEntity.status(400).body("Không tìm thấy thông tin người dùng");
+            }
+
+            // Kiểm tra xem user có phải là teacher của course này không
+            Course course = courseService.getCourseById(courseId);
+            if (course == null) {
+                return ResponseEntity.status(404).body("Không tìm thấy khóa học");
+            }
+
+            if (!currentUser.getId().equals(course.getTeacherId().getId())) {
+                return ResponseEntity.status(403).body("Bạn không có quyền cập nhật đáp án này");
+            }
+
+            // Cập nhật answer
+            Answer answerToUpdate = new Answer();
+            answerToUpdate.setContent((String) payload.get("content"));
+
+            // Xử lý chuyển đổi isTrue từ Integer sang Short
+            Object isTrueObj = payload.get("isTrue");
+            Short isTrue = null;
+            if (isTrueObj != null) {
+                if (isTrueObj instanceof Integer) {
+                    isTrue = ((Integer) isTrueObj).shortValue();
+                } else if (isTrueObj instanceof Short) {
+                    isTrue = (Short) isTrueObj;
+                } else {
+                    isTrue = Short.valueOf(isTrueObj.toString());
+                }
+            }
+            answerToUpdate.setIsTrue(isTrue);
+
+            Answer updatedAnswer = answerServices.updateAnswer(answerId, answerToUpdate);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Cập nhật đáp án thành công!");
+            response.put("answer", new AnswerDto(updatedAnswer));
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Lỗi khi cập nhật đáp án: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    @DeleteMapping("/course/{courseId}/exam/{examId}/question/{questionId}/answer/{answerId}")
+    public ResponseEntity<?> deleteAnswer(@PathVariable int courseId,
+            @PathVariable int examId,
+            @PathVariable int questionId,
+            @PathVariable int answerId) {
+        try {
+            // Kiểm tra quyền
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
+                return ResponseEntity.status(401).body("Bạn cần đăng nhập để thực hiện chức năng này");
+            }
+
+            String username = auth.getName();
+            User currentUser = userServices.getUserByUsername(username);
+
+            if (currentUser == null) {
+                return ResponseEntity.status(400).body("Không tìm thấy thông tin người dùng");
+            }
+
+            // Kiểm tra xem user có phải là teacher của course này không
+            Course course = courseService.getCourseById(courseId);
+            if (course == null) {
+                return ResponseEntity.status(404).body("Không tìm thấy khóa học");
+            }
+
+            if (!currentUser.getId().equals(course.getTeacherId().getId())) {
+                return ResponseEntity.status(403).body("Bạn không có quyền xóa đáp án này");
+            }
+
+            answerServices.deleteAnswer(answerId);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Xóa đáp án thành công!");
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Lỗi khi xóa đáp án: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
 }
-
-

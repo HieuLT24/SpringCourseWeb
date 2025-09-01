@@ -46,7 +46,9 @@ public class ExamRepositoryImpl implements ExamRepository {
     public void addOrUpdate(Exam exam) {
         Session s = this.factory.getObject().getCurrentSession();
         if (exam.getId() != null) {
+            // Khi cập nhật, sử dụng merge để đảm bảo xử lý đúng các relationship
             s.merge(exam);
+            s.flush(); // Đảm bảo thay đổi được lưu ngay lập tức
         } else {
             s.persist(exam);
         }
@@ -57,7 +59,35 @@ public class ExamRepositoryImpl implements ExamRepository {
         Session s = this.factory.getObject().getCurrentSession();
         Exam exam = this.getExamById(id);
         if (exam != null) {
-            s.remove(exam);
+            // Xóa các bản ghi liên quan trước
+            try {
+                // Xóa các câu hỏi và đáp án liên quan
+                Query deleteAnswersQuery = s.createNativeQuery(
+                    "DELETE FROM answer WHERE question_id IN (SELECT id FROM question WHERE exam_id = :examId)"
+                );
+                deleteAnswersQuery.setParameter("examId", id);
+                deleteAnswersQuery.executeUpdate();
+                
+                // Xóa các câu hỏi
+                Query deleteQuestionsQuery = s.createNativeQuery(
+                    "DELETE FROM question WHERE exam_id = :examId"
+                );
+                deleteQuestionsQuery.setParameter("examId", id);
+                deleteQuestionsQuery.executeUpdate();
+                
+                // Xóa các bản ghi user_exam (nếu có)
+                Query deleteUserExamQuery = s.createNativeQuery(
+                    "DELETE FROM user_exam WHERE exam_id = :examId"
+                );
+                deleteUserExamQuery.setParameter("examId", id);
+                deleteUserExamQuery.executeUpdate();
+                
+                // Cuối cùng xóa bài kiểm tra
+                s.remove(exam);
+                
+            } catch (Exception e) {
+                throw new RuntimeException("Không thể xóa bài kiểm tra: " + e.getMessage());
+            }
         }
     }
 }

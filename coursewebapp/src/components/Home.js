@@ -25,7 +25,8 @@ function Home() {
     try {
       const [coursesData, categoriesData] = await Promise.all([
         courseService.getAllCourses({ page }),
-        courseService.getCategories(catePage)
+        courseService.getCategories(catePage),
+        
       ]);
       
       const items = coursesData.courses || [];

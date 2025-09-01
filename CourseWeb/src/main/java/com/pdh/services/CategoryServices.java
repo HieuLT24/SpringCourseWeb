@@ -15,4 +15,6 @@ import java.util.Map;
 public interface CategoryServices {
     public List<Category> getCates(Map<String, String> params);
     public Category getCateById(int id);
+    public Category createCategory(String name);
+    public Category getCategoryByName(String name);
 }

@@ -15,5 +15,6 @@ import java.util.Map;
 public interface CategoryRepository {
     public List<Category> getCates(Map<String, String> params);
     public Category getCateById(int id);
-
+    public Category addCategory(Category category);
+    public Category getCategoryByName(String name);
 }

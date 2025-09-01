@@ -10,6 +10,131 @@ class LearningService {
       return [];
     }
   }
+  
+  async getTeacherCourses() {
+    try {
+      const response = await axios.get(endpoints.courses.getTeacherCourses);
+      if (response.data.success) {
+        return {
+          success: true,
+          activeCourses: response.data.activeCourses || [],
+          pendingCourses: response.data.pendingCourses || [],
+          totalActive: response.data.totalActive || 0,
+          totalPending: response.data.totalPending || 0
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || 'Lấy danh sách khóa học thất bại'
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Lấy danh sách khóa học thất bại'
+      };
+    }
+  }
+  
+  async createLecture(courseId, lectureData) {
+    try {
+      const formData = new FormData();
+      formData.append('content', lectureData.content);
+      if (lectureData.video) {
+        formData.append('video', lectureData.video);
+      }
+      if (lectureData.attachment) {
+        formData.append('attachment', lectureData.attachment);
+      }
+      
+      const url = buildUrl(endpoints.learning.createLecture, { courseId });
+      const response = await axios.post(url, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      if (response.data.success) {
+        return {
+          success: true,
+          message: response.data.message,
+          lecture: response.data.lecture
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || 'Tạo bài giảng thất bại'
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Tạo bài giảng thất bại'
+      };
+    }
+  }
+  
+  async updateLecture(courseId, lectureId, lectureData) {
+    try {
+      const formData = new FormData();
+      formData.append('content', lectureData.content);
+      if (lectureData.video) {
+        formData.append('video', lectureData.video);
+      }
+      if (lectureData.attachment) {
+        formData.append('attachment', lectureData.attachment);
+      }
+      
+      const url = buildUrl(endpoints.learning.updateLecture, { courseId, lectureId });
+      const response = await axios.put(url, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      if (response.data.success) {
+        return {
+          success: true,
+          message: response.data.message,
+          lecture: response.data.lecture
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || 'Cập nhật bài giảng thất bại'
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Cập nhật bài giảng thất bại'
+      };
+    }
+  }
+  
+  async deleteLecture(courseId, lectureId) {
+    try {
+      const url = buildUrl(endpoints.learning.deleteLecture, { courseId, lectureId });
+      const response = await axios.delete(url);
+      
+      if (response.data.success) {
+        return {
+          success: true,
+          message: response.data.message
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || 'Xóa bài giảng thất bại'
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Xóa bài giảng thất bại'
+      };
+    }
+  }
   async getLearningDashboard(courseId) {
     try {
       const url = buildUrl(endpoints.learning.dashboard, { courseId });
@@ -49,10 +174,15 @@ class LearningService {
     }
   }
 
-  async getExamQuestions(courseId, examId) {
+  async getExamQuestions(courseId, examId, page = 1, limit = 5) {
     try {
       const url = buildUrl(endpoints.learning.getExamQuestions, { courseId, examId });
-      const response = await axios.get(url);
+      const response = await axios.get(url, { 
+        params: { 
+          page, 
+          limit 
+        } 
+      });
       return { success: true, data: response.data };
     } catch (error) {
       return { 
@@ -214,6 +344,233 @@ class LearningService {
       return { 
         success: false, 
         message: error.response?.data?.message || 'Xóa comment thất bại' 
+      };
+    }
+  }
+
+  
+  async createExam(courseId, examData) {
+    try {
+      const url = buildUrl(endpoints.learning.createExam, { courseId });
+      const response = await axios.post(url, examData);
+      
+      if (response.data.success) {
+        return {
+          success: true,
+          message: response.data.message,
+          exam: response.data.exam
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || 'Tạo bài kiểm tra thất bại'
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Tạo bài kiểm tra thất bại'
+      };
+    }
+  }
+  
+  async updateExam(courseId, examId, examData) {
+    try {
+      const url = buildUrl(endpoints.learning.updateExam, { courseId, examId });
+      const response = await axios.put(url, examData);
+      
+      if (response.data.success) {
+        return {
+          success: true,
+          message: response.data.message,
+          exam: response.data.exam
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || 'Cập nhật bài kiểm tra thất bại'
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Cập nhật bài kiểm tra thất bại'
+      };
+    }
+  }
+  
+  async deleteExam(courseId, examId) {
+    try {
+      const url = buildUrl(endpoints.learning.deleteExam, { courseId, examId });
+      const response = await axios.delete(url);
+      
+      if (response.data.success) {
+        return {
+          success: true,
+          message: response.data.message
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || 'Xóa bài kiểm tra thất bại'
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Xóa bài kiểm tra thất bại'
+      };
+    }
+  }
+  
+  // ==================== QUESTION MANAGEMENT ====================
+  
+  async createQuestion(courseId, examId, questionData) {
+    try {
+      const url = buildUrl(endpoints.learning.createQuestion, { courseId, examId });
+      const response = await axios.post(url, questionData);
+      
+      if (response.data.success) {
+        return {
+          success: true,
+          message: response.data.message,
+          question: response.data.question
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || 'Tạo câu hỏi thất bại'
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Tạo câu hỏi thất bại'
+      };
+    }
+  }
+  
+  async updateQuestion(courseId, examId, questionId, questionData) {
+    try {
+      const url = buildUrl(endpoints.learning.updateQuestion, { courseId, examId, questionId });
+      const response = await axios.put(url, questionData);
+      
+      if (response.data.success) {
+        return {
+          success: true,
+          message: response.data.message,
+          question: response.data.question
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || 'Cập nhật câu hỏi thất bại'
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Cập nhật câu hỏi thất bại'
+      };
+    }
+  }
+  
+  async deleteQuestion(courseId, examId, questionId) {
+    try {
+      const url = buildUrl(endpoints.learning.deleteQuestion, { courseId, examId, questionId });
+      const response = await axios.delete(url);
+      
+      if (response.data.success) {
+        return {
+          success: true,
+          message: response.data.message
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || 'Xóa câu hỏi thất bại'
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Xóa câu hỏi thất bại'
+      };
+    }
+  }
+  
+  // ==================== ANSWER MANAGEMENT ====================
+  
+  async createAnswer(courseId, examId, questionId, answerData) {
+    try {
+      const url = buildUrl(endpoints.learning.createAnswer, { courseId, examId, questionId });
+      const response = await axios.post(url, answerData);
+      
+      if (response.data.success) {
+        return {
+          success: true,
+          message: response.data.message,
+          answer: response.data.answer
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || 'Tạo đáp án thất bại'
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Tạo đáp án thất bại'
+      };
+    }
+  }
+  
+  async updateAnswer(courseId, examId, questionId, answerId, answerData) {
+    try {
+      const url = buildUrl(endpoints.learning.updateAnswer, { courseId, examId, questionId, answerId });
+      const response = await axios.put(url, answerData);
+      
+      if (response.data.success) {
+        return {
+          success: true,
+          message: response.data.message,
+          answer: response.data.answer
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || 'Cập nhật đáp án thất bại'
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Cập nhật đáp án thất bại'
+      };
+    }
+  }
+  
+  async deleteAnswer(courseId, examId, questionId, answerId) {
+    try {
+      const url = buildUrl(endpoints.learning.deleteAnswer, { courseId, examId, questionId, answerId });
+      const response = await axios.delete(url);
+      
+      if (response.data.success) {
+        return {
+          success: true,
+          message: response.data.message
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || 'Xóa đáp án thất bại'
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Xóa đáp án thất bại'
       };
     }
   }

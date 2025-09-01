@@ -42,13 +42,29 @@ public class JwtUtil {
 
     public String validateToken(String token) {
         try {
+            if (token == null || token.trim().isEmpty()) {
+                System.err.println("JWT token is null or empty");
+                return null;
+            }
+            
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes()))
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
+            
+            // Check if token is expired
+            if (claims.getExpiration() != null && claims.getExpiration().before(new Date())) {
+                System.err.println("JWT token is expired");
+                return null;
+            }
+            
             return claims.getSubject();
         } catch (JwtException e) {
+            System.err.println("JWT validation error: " + e.getMessage());
+            return null;
+        } catch (Exception e) {
+            System.err.println("Unexpected error during JWT validation: " + e.getMessage());
             return null;
         }
     }

@@ -50,6 +50,25 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     public Category getCateById(int id) {
         Session s = this.factory.getObject().getCurrentSession();
         return s.find(Category.class, id);
-
+    }
+    
+    @Override
+    public Category addCategory(Category category) {
+        Session s = this.factory.getObject().getCurrentSession();
+        s.persist(category);
+        return category;
+    }
+    
+    @Override
+    public Category getCategoryByName(String name) {
+        Session s = this.factory.getObject().getCurrentSession();
+        Query q = s.createQuery("FROM Category c WHERE c.name = :name", Category.class);
+        q.setParameter("name", name);
+        
+        List<Category> results = q.getResultList();
+        if (results.isEmpty()) {
+            return null;
+        }
+        return results.get(0);
     }
 }

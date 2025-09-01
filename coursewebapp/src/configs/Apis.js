@@ -17,14 +17,17 @@ export const endpoints = {
         'getById': 'users/{id}',
         'getCurrent': 'users/me',
         'updateProfile': 'users/me',
-        'changePassword': 'users/me/change-password',
+        'changePassword': 'users/me',
         'delete': 'users/{id}'
     },
 
     'courses': {
         'getAll': 'courses',
         'getById': 'courses/{courseId}',
-        'getCategories': 'categories'
+        'getCategories': 'categories',
+        'getListCategories': 'courses/categories',
+        'create': 'courses/create',
+        'getTeacherCourses': 'courses/teacher/my-courses'
     },
 
     'enrollments': {
@@ -55,7 +58,22 @@ export const endpoints = {
         'deletePost': 'learning/course/{courseId}/forum/post/{postId}',
         'createComment': 'learning/course/{courseId}/forum/post/{postId}/comments',
         'updateComment': 'learning/course/{courseId}/forum/post/{postId}/comments/{commentId}',
-        'deleteComment': 'learning/course/{courseId}/forum/post/{postId}/comments/{commentId}'
+        'deleteComment': 'learning/course/{courseId}/forum/post/{postId}/comments/{commentId}',
+        'createLecture': 'learning/course/{courseId}/lectures',
+        'updateLecture': 'learning/course/{courseId}/lecture/{lectureId}',
+        'deleteLecture': 'learning/course/{courseId}/lecture/{lectureId}',
+        // Exam Management
+        'createExam': 'learning/course/{courseId}/exams',
+        'updateExam': 'learning/course/{courseId}/exam/{examId}',
+        'deleteExam': 'learning/course/{courseId}/exam/{examId}',
+        // Question Management
+        'createQuestion': 'learning/course/{courseId}/exam/{examId}/questions',
+        'updateQuestion': 'learning/course/{courseId}/exam/{examId}/question/{questionId}',
+        'deleteQuestion': 'learning/course/{courseId}/exam/{examId}/question/{questionId}',
+        // Answer Management
+        'createAnswer': 'learning/course/{courseId}/exam/{examId}/question/{questionId}/answers',
+        'updateAnswer': 'learning/course/{courseId}/exam/{examId}/question/{questionId}/answer/{answerId}',
+        'deleteAnswer': 'learning/course/{courseId}/exam/{examId}/question/{questionId}/answer/{answerId}'
     },
 
     'admin': {

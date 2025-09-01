@@ -5,6 +5,7 @@
 package com.pdh.services;
 
 import com.pdh.pojo.Course;
+import com.pdh.dto.course.CreateCourseRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -21,4 +22,8 @@ public interface CourseServices {
     public Course getCourseById(int id);
 
     public void addOrUpdate(Course course);
+    
+    public Course createCourse(CreateCourseRequest request, Integer teacherId);
+    
+    public List<Course> getCoursesByTeacher(Integer teacherId);
 }

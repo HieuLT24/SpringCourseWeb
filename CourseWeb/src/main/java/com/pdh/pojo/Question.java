@@ -41,11 +41,18 @@ public class Question implements Serializable {
     @NotNull
     @Column(name = "id")
     private Integer id;
-    @Size(max = 45)
+    
+    @Size(max = 1000)
     @Column(name = "content")
     private String content;
-    @OneToMany(mappedBy = "questionId")
+    
+
+    @Column(name = "points")
+    private Integer points;
+    
+    @OneToMany(mappedBy = "questionId", fetch = jakarta.persistence.FetchType.EAGER)
     private Set<Answer> answerSet;
+    
     @JoinColumn(name = "exam_id", referencedColumnName = "id")
     @ManyToOne
     @JsonIgnore
@@ -73,6 +80,10 @@ public class Question implements Serializable {
     public void setContent(String content) {
         this.content = content;
     }
+
+
+    public Integer getPoints() { return points; }
+    public void setPoints(Integer points) { this.points = points; }
 
     public Set<Answer> getAnswerSet() {
         return answerSet;

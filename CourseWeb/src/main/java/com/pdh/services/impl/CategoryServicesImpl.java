@@ -32,5 +32,16 @@ public class CategoryServicesImpl implements CategoryServices {
     public Category getCateById(int id) {
         return this.cateRepo.getCateById(id);
     }
-
+    
+    @Override
+    public Category createCategory(String name) {
+        Category category = new Category();
+        category.setName(name);
+        return this.cateRepo.addCategory(category);
+    }
+    
+    @Override
+    public Category getCategoryByName(String name) {
+        return this.cateRepo.getCategoryByName(name);
+    }
 }

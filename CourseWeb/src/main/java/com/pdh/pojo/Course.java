@@ -50,10 +50,10 @@ public class Course implements Serializable {
     @NotNull
     @Column(name = "id")
     private Integer id;
-    @Size(max = 45)
+    @Size(max = 200)
     @Column(name = "title")
     private String title;
-    @Size(max = 45)
+    @Size(max = 1000)
     @Column(name = "description")
     private String description;
     @Column(name = "price")
@@ -79,6 +79,8 @@ public class Course implements Serializable {
     @OneToMany(mappedBy = "courseId")
     @JsonIgnore
     private Set<Enrollment> enrollmentSet;
+    
+    @Column(name = "image")
     private String image;
     
     @Transient

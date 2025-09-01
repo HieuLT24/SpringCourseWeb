@@ -71,12 +71,18 @@ public class SpringSecurityConfigs {
                 .requestMatchers("/", "/home", "/login", "/register", "/forgot-password", "/reset-password", "/courses/**", "/css/**", "/js/**", "/images/**").permitAll()
                 // Public APIs
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/categories", "/api/courses", "/api/courses/*").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/courses").permitAll()
+                // .requestMatchers(HttpMethod.GET, "/api/courses/*").permitAll()
                 // Protected APIs: yêu cầu đã đăng nhập
+                .requestMatchers("/api/courses/create").authenticated()  // Thêm endpoint tạo khóa học - Yêu cầu đăng nhập
+                .requestMatchers("/api/courses/teacher/**").hasAuthority("TEACHER")  // Endpoint cho teacher - yêu cầu role TEACHER
                 .requestMatchers("/api/courses/*/enrollments").authenticated()
                 .requestMatchers("/api/payment/process").authenticated()
                 .requestMatchers("/api/payment/callback/**").permitAll()
                 .requestMatchers("/api/learning/**").authenticated()
+                .requestMatchers("/api/learning/course/*/lectures").hasAuthority("TEACHER")
+                .requestMatchers("/api/learning/course/*/lecture/*").hasAuthority("TEACHER")
                 .requestMatchers("/api/users/me/**").authenticated()
                 // Admin area
                 .requestMatchers("/admin/**").hasRole("ADMIN")

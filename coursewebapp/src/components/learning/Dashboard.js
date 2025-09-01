@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, Outlet, useParams } from 'react-router-dom';
 import { courseService } from '../../services/courseService';
+import { useAuth } from '../../contexts/AuthContext';
+import Lecture from './Lecture';
+import Exam from './Exam';
+import Forum from './Forum';
 
 function DashboardLayout() {
   const { id } = useParams();
@@ -8,6 +12,8 @@ function DashboardLayout() {
   const [course, setCourse] = useState(null);
   const [enrollmentCount, setEnrollmentCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('lectures');
+  const { currentUser } = useAuth();
 
   useEffect(() => {
     const load = async () => {
@@ -24,6 +30,24 @@ function DashboardLayout() {
     };
     if (!isNaN(courseId)) load();
   }, [courseId]);
+
+  // Kiểm tra xem user có phải là giáo viên của khóa học này không
+  const isTeacher = currentUser && course && currentUser.id === course.teacherId?.id;
+
+  // Hàm render nội dung dựa trên tab được chọn
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'lectures':
+        return <Lecture />;
+      case 'exams':
+        return <Exam courseId={courseId} isTeacher={isTeacher} />;
+      case 'forum':
+        return <Forum />;
+      default:
+        return <Lecture />;
+    }
+  };
+
   return (
     <div className="content-wrapper py-4">
       <div className="container">
@@ -32,15 +56,27 @@ function DashboardLayout() {
             <div className="bg-white rounded-3 shadow-sm p-3">
               <h5 className="mb-3"><i className="fas fa-layer-group me-2"></i>Điều hướng</h5>
               <nav className="nav flex-column">
-                <NavLink className={({isActive}) => `nav-link ${isActive?'active fw-semibold':''}`} to={`/learning/course/${courseId}/lectures`}>
+                <button 
+                  className={`nav-link text-start border-0 bg-transparent ${activeTab === 'lectures' ? 'active fw-semibold' : ''}`}
+                  onClick={() => setActiveTab('lectures')}
+                  style={{ cursor: 'pointer' }}
+                >
                   <i className="fas fa-play-circle me-2"></i>Bài giảng
-                </NavLink>
-                <NavLink className={({isActive}) => `nav-link ${isActive?'active fw-semibold':''}`} to={`/learning/course/${courseId}/exams`}>
+                </button>
+                <button 
+                  className={`nav-link text-start border-0 bg-transparent ${activeTab === 'exams' ? 'active fw-semibold' : ''}`}
+                  onClick={() => setActiveTab('exams')}
+                  style={{ cursor: 'pointer' }}
+                >
                   <i className="fas fa-file-alt me-2"></i>Bài thi
-                </NavLink>
-                <NavLink className={({isActive}) => `nav-link ${isActive?'active fw-semibold':''}`} to={`/learning/course/${courseId}/forum`}>
+                </button>
+                <button 
+                  className={`nav-link text-start border-0 bg-transparent ${activeTab === 'forum' ? 'active fw-semibold' : ''}`}
+                  onClick={() => setActiveTab('forum')}
+                  style={{ cursor: 'pointer' }}
+                >
                   <i className="fas fa-comments me-2"></i>Forum & Thông báo
-                </NavLink>
+                </button>
               </nav>
             </div>
           </div>
@@ -62,13 +98,22 @@ function DashboardLayout() {
                       <span><i className="fas fa-user-tie me-1"></i>Giảng viên: {course.teacherId?.name || 'Đang cập nhật'}</span>
                       <span><i className="fas fa-users me-1"></i>Học viên: {enrollmentCount}</span>
                     </div>
+                    {isTeacher && (
+                      <div className="mt-2">
+                        <span className="badge bg-primary">
+                          <i className="fas fa-crown me-1"></i>Giảng viên của khóa học
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : (
                 <div className="text-danger">Không tìm thấy khóa học.</div>
               )}
             </div>
-            <Outlet />
+            
+            {/* Hiển thị nội dung dựa trên tab được chọn */}
+            {renderContent()}
           </div>
         </div>
       </div>

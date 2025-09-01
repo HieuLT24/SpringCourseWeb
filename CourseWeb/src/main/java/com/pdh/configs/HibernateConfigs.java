@@ -67,6 +67,11 @@ public class HibernateConfigs {
                 = new HibernateTransactionManager();
         transactionManager.setSessionFactory(
                 getSessionFactory().getObject());
+        
+        transactionManager.setDefaultTimeout(30);
+        
+        transactionManager.setGlobalRollbackOnParticipationFailure(true);
+        
         return transactionManager;
     }
 }
