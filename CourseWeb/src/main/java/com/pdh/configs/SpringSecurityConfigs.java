@@ -73,10 +73,9 @@ public class SpringSecurityConfigs {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/courses").permitAll()
-                // .requestMatchers(HttpMethod.GET, "/api/courses/*").permitAll()
                 // Protected APIs: yêu cầu đã đăng nhập
-                .requestMatchers("/api/courses/create").authenticated()  // Thêm endpoint tạo khóa học - Yêu cầu đăng nhập
-                .requestMatchers("/api/courses/teacher/**").hasAuthority("TEACHER")  // Endpoint cho teacher - yêu cầu role TEACHER
+                .requestMatchers("/api/courses/create").authenticated()
+                .requestMatchers("/api/courses/teacher/**").hasAuthority("TEACHER")
                 .requestMatchers("/api/courses/*/enrollments").authenticated()
                 .requestMatchers("/api/payment/process").authenticated()
                 .requestMatchers("/api/payment/callback/**").permitAll()

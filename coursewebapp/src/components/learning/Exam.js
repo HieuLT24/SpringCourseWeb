@@ -32,6 +32,10 @@ function Exam({ courseId: propCourseId, isTeacher = false }) {
   const [editingExam, setEditingExam] = useState(null);
   const [editingQuestion, setEditingQuestion] = useState(null);
   const [editingAnswer, setEditingAnswer] = useState(null);
+  // Phân trang câu hỏi trong giao diện giáo viên
+  const [teacherQuestionsPage, setTeacherQuestionsPage] = useState(1);
+  const [teacherQuestionsTotalPages, setTeacherQuestionsTotalPages] = useState(1);
+  const teacherQuestionsLimit = 5;
 
   useEffect(() => {
     loadExams();
@@ -76,7 +80,7 @@ function Exam({ courseId: propCourseId, isTeacher = false }) {
       const examDetail = await learningService.takeExam(courseId, examId);
       if (examDetail.success) {
         const exam = examDetail.data;
-        const questionsRes = await learningService.getExamQuestions(courseId, examId);
+        const questionsRes = await learningService.getExamQuestions(courseId, examId, 1, 1000);
         if (questionsRes.success) {
           setCurrentExam({
             ...exam,
@@ -207,6 +211,24 @@ function Exam({ courseId: propCourseId, isTeacher = false }) {
 
     setShowAnswerForm(false);
     setEditingAnswer(null);
+  };
+
+  // Tải câu hỏi theo trang cho giao diện giáo viên
+  const loadTeacherQuestions = async (examId, pageToLoad = 1) => {
+    try {
+      const res = await learningService.getExamQuestions(courseId, examId, pageToLoad, teacherQuestionsLimit);
+      if (res.success) {
+        const questions = (res.data?.questions || []).map(q => ({
+          ...q,
+          answers: q.answers || q.answerSet || []
+        }));
+        setSelectedExam(prev => ({ ...(prev || {}), questions }));
+        setTeacherQuestionsPage(res.data?.currentPage || pageToLoad);
+        setTeacherQuestionsTotalPages(res.data?.totalPages || 1);
+      }
+    } catch (e) {
+      console.error('Load questions (teacher) error:', e);
+    }
   };
 
   const openAnswerForm = (answer = null) => {
@@ -403,7 +425,7 @@ function Exam({ courseId: propCourseId, isTeacher = false }) {
           <button className="btn btn-outline-secondary" disabled={page===1} onClick={()=>setPage(p=>Math.max(1,p-1))}>Trang trước</button>
           <div className="d-flex gap-2">
             <button className="btn btn-outline-primary" disabled={page===totalPages} onClick={()=>setPage(p=>Math.min(totalPages,p+1))}>Trang sau</button>
-            <button className="btn btn-success" onClick={()=>handleSubmit(false)}>Nộp bài</button>
+            <button className="btn btn-success" onClick={()=>handleSubmit(true)}>Nộp bài</button>
           </div>
         </div>
       </div>
@@ -634,18 +656,8 @@ function Exam({ courseId: propCourseId, isTeacher = false }) {
                       onClick={async () => {
                         setSelectedExam({ ...exam, questions: [] });
                         setSelectedQuestion(null);
-                        try {
-                          const res = await learningService.getExamQuestions(courseId, exam.id, 1, 5);
-                          if (res.success) {
-                            const questions = (res.data?.questions || []).map(q => ({
-                              ...q,
-                              answers: q.answers || q.answerSet || []
-                            }));
-                            setSelectedExam(prev => ({ ...(prev || exam), questions }));
-                          }
-                        } catch (e) {
-                          console.error('Load questions error:', e);
-                        }
+                        setTeacherQuestionsPage(1);
+                        await loadTeacherQuestions(exam.id, 1);
                       }}
                     >
                       <div style={styles.listGroupItemContent}>
@@ -782,6 +794,25 @@ function Exam({ courseId: propCourseId, isTeacher = false }) {
                       </div>
                     </div>
                   ))}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
+                    <small style={{ color: '#6c757d' }}>Trang {teacherQuestionsPage}/{teacherQuestionsTotalPages}</small>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        style={styles.btnOutline}
+                        disabled={teacherQuestionsPage === 1}
+                        onClick={() => teacherQuestionsPage > 1 && loadTeacherQuestions(selectedExam.id, teacherQuestionsPage - 1)}
+                      >
+                        Trang trước
+                      </button>
+                      <button
+                        style={styles.btnOutline}
+                        disabled={teacherQuestionsPage === teacherQuestionsTotalPages}
+                        onClick={() => teacherQuestionsPage < teacherQuestionsTotalPages && loadTeacherQuestions(selectedExam.id, teacherQuestionsPage + 1)}
+                      >
+                        Trang sau
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             ) : (
