@@ -10,10 +10,11 @@ import CourseDetail from './components/CourseDetail';
 import CreateCourse from './components/CreateCourse';
 import Login from './components/Login';
 import Register from './components/Register';
+import AdminLayout from './components/admin/AdminLayout';
 import AdminDashboard from './components/admin/AdminDashboard';
-import AdminCourses from './components/admin/AdminCourses';
-import AdminCourseForm from './components/admin/AdminCourseForm';
 import AdminStats from './components/admin/AdminStats';
+import PendingCourses from './components/admin/PendingCourses';
+import UserManagement from './components/admin/UserManagement';
 import LearningList from './components/learning/LearningList';
 import Lecture from './components/learning/Lecture';
 import Exam from './components/learning/Exam';
@@ -44,11 +45,13 @@ function App() {
               <Route path="/courses/:id" element={<CourseDetail />} />
               <Route path="/courses/create" element={<CreateCourse />} />
               {/* Admin */}
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/courses" element={<AdminCourses />} />
-              <Route path="/admin/courses/new" element={<AdminCourseForm />} />
-              <Route path="/admin/courses/:id/edit" element={<AdminCourseForm />} />
-              <Route path="/admin/stats" element={<AdminStats />} />
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="pending-courses" element={<PendingCourses />} />
+                <Route path="user-management" element={<UserManagement />} />
+                <Route path="stats" element={<AdminStats />} />
+              </Route>
               {/* Learning */}
               <Route path="/learning" element={<LearningList />} />
               <Route path="/learning/course/:id" element={<DashboardLayout />}>

@@ -74,18 +74,32 @@ public class SpringSecurityConfigs {
                 .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/courses").permitAll()
                 // Protected APIs: yêu cầu đã đăng nhập
-                .requestMatchers("/api/courses/create").authenticated()
-                .requestMatchers("/api/courses/teacher/**").hasAuthority("TEACHER")
                 .requestMatchers("/api/courses/*/enrollments").authenticated()
                 .requestMatchers("/api/payment/process").authenticated()
                 .requestMatchers("/api/payment/callback/**").permitAll()
-                .requestMatchers("/api/learning/**").authenticated()
-                .requestMatchers("/api/learning/course/*/lectures").hasAuthority("TEACHER")
-                .requestMatchers("/api/learning/course/*/lecture/*").hasAuthority("TEACHER")
                 .requestMatchers("/api/users/me/**").authenticated()
-                // Admin area
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/stats").hasRole("ADMIN")
+                
+                // TEACHER-only APIs
+                .requestMatchers(HttpMethod.POST, "/api/courses/create").hasAuthority("TEACHER")
+                .requestMatchers(HttpMethod.POST, "/api/learning/course/*/lectures").hasAuthority("TEACHER")
+                .requestMatchers(HttpMethod.PUT, "/api/learning/course/*/lecture/*").hasAuthority("TEACHER")
+                .requestMatchers(HttpMethod.DELETE, "/api/learning/course/*/lecture/*").hasAuthority("TEACHER")
+                .requestMatchers(HttpMethod.POST, "/api/learning/course/*/exams").hasAuthority("TEACHER")
+                .requestMatchers(HttpMethod.PUT, "/api/learning/course/*/exam/*").hasAuthority("TEACHER")
+                .requestMatchers(HttpMethod.DELETE, "/api/learning/course/*/exam/*").hasAuthority("TEACHER")
+                .requestMatchers(HttpMethod.POST, "/api/learning/course/*/exam/*/questions").hasAuthority("TEACHER")
+                .requestMatchers(HttpMethod.PUT, "/api/learning/course/*/exam/*/question/*").hasAuthority("TEACHER")
+                .requestMatchers(HttpMethod.DELETE, "/api/learning/course/*/exam/*/question/*").hasAuthority("TEACHER")
+                .requestMatchers(HttpMethod.POST, "/api/learning/course/*/exam/*/question/*/answers").hasAuthority("TEACHER")
+                .requestMatchers(HttpMethod.PUT, "/api/learning/course/*/exam/*/question/*/answer/*").hasAuthority("TEACHER")
+                .requestMatchers(HttpMethod.DELETE, "/api/learning/course/*/exam/*/question/*/answer/*").hasAuthority("TEACHER")
+                
+                // Other learning APIs (GET requests) - authenticated users can access
+                .requestMatchers("/api/learning/**").authenticated()
+                // Admin area - both web pages and API endpoints
+                .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                // Admin API endpoints
+                .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                 // Default: allow other requests (APIs không yêu cầu chứng thực)
                 .anyRequest().permitAll())
             .formLogin(form -> form.loginPage("/login")
@@ -93,8 +107,11 @@ public class SpringSecurityConfigs {
                 .successHandler((request, response, authentication) -> {
                     try {
                         String contextPath = request.getContextPath();
-                        if (authentication.getAuthorities().stream()
-                            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+                        // Kiểm tra authority ADMIN
+                        boolean isAdmin = authentication.getAuthorities().stream()
+                            .anyMatch(a -> a.getAuthority().equals("ADMIN"));
+                        
+                        if (isAdmin) {
                             response.sendRedirect(contextPath + "/admin");
                         } else {
                             response.sendRedirect(contextPath + "/");

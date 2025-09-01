@@ -79,6 +79,20 @@ class UserService {
     }
   }
 
+  async updateUser(id, userData) {
+    try {
+      const url = buildUrl(endpoints.users.update, { id });
+      const response = await axios.put(url, userData);
+      return { success: true, message: response.data };
+    } catch (error) {
+      const msg = error.response?.data?.message || error.response?.data || 'Cập nhật user thất bại';
+      return { 
+        success: false, 
+        message: msg 
+      };
+    }
+  }
+
   async deleteUser(id) {
     try {
       const url = buildUrl(endpoints.users.delete, { id });

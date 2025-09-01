@@ -1,12 +1,15 @@
 com\pdh\services\UserExamServices.class
+com\pdh\dto\exam\AnswerDto.class
 com\pdh\repositories\impl\CategoryRepositoryImpl.class
 com\pdh\repositories\PostRepository.class
 com\pdh\repositories\UserExamRepository.class
+com\pdh\dto\lecture\LectureRequest.class
 com\pdh\repositories\QuestionRepository.class
 com\pdh\dto\user\RegisterRequest.class
 com\pdh\controllers\GlobalExceptionHandler.class
 com\pdh\repositories\impl\UserExamRepositoryImpl.class
 com\pdh\services\impl\PaymentServicesImpl.class
+com\pdh\services\AnswerServices.class
 com\pdh\services\QuestionServices.class
 com\pdh\configs\JwtAuthenticationFilter.class
 com\pdh\pojo\Answer.class
@@ -18,7 +21,6 @@ com\pdh\utils\JwtUtil.class
 com\pdh\controllers\ApiIndexController.class
 com\pdh\pojo\Enrollment.class
 com\pdh\repositories\impl\PaymentRepositoryImpl.class
-com\pdh\controllers\ApiAdminController.class
 com\pdh\services\ExamServices.class
 com\pdh\services\impl\UserServicesImpl.class
 com\pdh\repositories\CourseRepository.class
@@ -28,11 +30,13 @@ com\pdh\repositories\impl\UserRepositoryImpl.class
 com\pdh\repositories\CategoryRepository.class
 com\pdh\repositories\PaymentRepository.class
 com\pdh\services\impl\ForumServicesImpl.class
+com\pdh\dto\exam\ExamDto.class
 com\pdh\pojo\Forum.class
 com\pdh\dto\forum\UserDto.class
 com\pdh\repositories\impl\LectureRepositoryImpl.class
 com\pdh\services\impl\CommentServicesImpl.class
 com\pdh\services\impl\QuestionServicesImpl.class
+com\pdh\repositories\AnswerRepository.class
 com\pdh\utils\HmacUtil.class
 com\pdh\configs\SecurityWebApplicationInitializer.class
 com\pdh\services\impl\CategoryServicesImpl.class
@@ -50,6 +54,7 @@ com\pdh\services\impl\StatsServicesImpl.class
 com\pdh\repositories\impl\PostRepositoryImpl.class
 com\pdh\courseweb\JakartaRestConfiguration.class
 com\pdh\configs\WebAppContextConfigs.class
+com\pdh\services\impl\AnswerServicesImpl.class
 com\pdh\services\impl\ExamServicesImpl.class
 com\pdh\services\StatsServices.class
 com\pdh\controllers\ApiPaymentHistoryController.class
@@ -58,6 +63,7 @@ com\pdh\repositories\impl\QuestionRepositoryImpl.class
 com\pdh\services\CategoryServices.class
 com\pdh\services\EnrollmentServices.class
 com\pdh\pojo\Lecture.class
+com\pdh\dto\exam\QuestionDto.class
 com\pdh\dto\auth\TokenRefreshRequest.class
 com\pdh\controllers\ApiUserController.class
 com\pdh\services\impl\LectureServicesImpl.class
@@ -80,6 +86,7 @@ com\pdh\configs\MailConfig.class
 com\pdh\courseweb\resources\JakartaEE11Resource.class
 com\pdh\dto\forum\PostDto.class
 com\pdh\pojo\Comment.class
+com\pdh\repositories\impl\AnswerRepositoryImpl.class
 com\pdh\services\PaymentServices.class
 com\pdh\services\UserServices.class
 com\pdh\repositories\EnrollmentRepository.class

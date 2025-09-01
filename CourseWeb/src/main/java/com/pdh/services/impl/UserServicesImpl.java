@@ -58,6 +58,7 @@ public class UserServicesImpl implements UserServices {
             throw new UsernameNotFoundException("Invalid username");
         }
         Set<GrantedAuthority> authorities = new HashSet<>();
+        // Sử dụng role trực tiếp từ database
         authorities.add(new SimpleGrantedAuthority(u.getRole()));
 
         return new org.springframework.security.core.userdetails.User(
@@ -68,6 +69,21 @@ public class UserServicesImpl implements UserServices {
     @Override
     public void createOrUpdateUser(User user) {
         if (user.getId() != null) {
+            // Update existing user - check if username/email exists for OTHER users
+            User existingUser = getUserById(user.getId());
+            if (existingUser != null) {
+                // Check username conflict with other users
+                if (!existingUser.getUsername().equals(user.getUsername()) && isUsernameExists(user.getUsername())) {
+                    throw new RuntimeException("Tên đăng nhập đã tồn tại");
+                }
+                
+                // Check email conflict with other users
+                if (!existingUser.getEmail().equals(user.getEmail()) && isEmailExists(user.getEmail())) {
+                    throw new RuntimeException("Email đã tồn tại");
+                }
+            }
+        } else {
+            // Create new user - check if username/email exists
             if (isUsernameExists(user.getUsername())) {
                 throw new RuntimeException("Tên đăng nhập đã tồn tại");
             }
@@ -99,6 +115,29 @@ public class UserServicesImpl implements UserServices {
             }
         }
         this.userRepo.updateUser(user);
+    }
+    
+    // Cập nhật user từ admin: chỉ cập nhật name, email, role, không đổi password
+    @Override
+    public void updateUserByAdmin(User user) {
+        if (user.getId() == null) throw new RuntimeException("Thiếu ID người dùng");
+        
+        User existingUser = getUserById(user.getId());
+        if (existingUser == null) {
+            throw new RuntimeException("Không tìm thấy người dùng");
+        }
+        
+        // Kiểm tra email trùng với người khác (nếu email thay đổi)
+        if (!existingUser.getEmail().equals(user.getEmail()) && isEmailExists(user.getEmail())) {
+            throw new RuntimeException("Email đã tồn tại");
+        }
+        
+        // Chỉ cập nhật các field được phép
+        existingUser.setName(user.getName());
+        existingUser.setEmail(user.getEmail());
+        existingUser.setRole(user.getRole());
+        
+        this.userRepo.createOrUpdateUser(existingUser);
     }
 
     // Đổi mật khẩu với mã hóa

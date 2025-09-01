@@ -111,6 +111,27 @@ public class ApiUserController {
         return ResponseEntity.ok("Đổi mật khẩu thành công!");
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable int id, @RequestBody User updatedUser) {
+        try {
+            User existingUser = userServices.getUserById(id);
+            if (existingUser == null) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            // Set ID để đảm bảo update đúng user
+            updatedUser.setId(id);
+            
+            // Sử dụng method riêng cho admin update
+            userServices.updateUserByAdmin(updatedUser);
+            return ResponseEntity.ok("Cập nhật thành công!");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Có lỗi xảy ra khi cập nhật người dùng");
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable int id) {
         userServices.deleteUserById(id);

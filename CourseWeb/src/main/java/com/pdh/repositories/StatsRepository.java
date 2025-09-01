@@ -13,4 +13,5 @@ import java.util.List;
 public interface StatsRepository {
     List<Object[]> getRevenueByCourse();
     List<Object[]> getRevenueByTime(String time, int year);
+    List<Object[]> getRevenueByTimeAndCourse(String time, int year, Integer courseId);
 }

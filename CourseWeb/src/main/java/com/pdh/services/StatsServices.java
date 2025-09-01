@@ -11,6 +11,7 @@ import java.util.List;
  * @author duchi
  */
 public interface StatsServices {
-    List<Object[]> getRevenueByProduct();
+    List<Object[]> getRevenueByCourse();
     List<Object[]> getRevenueByTime(String time, int year);
+    List<Object[]> getRevenueByTimeAndCourse(String time, int year, Integer courseId);
 }

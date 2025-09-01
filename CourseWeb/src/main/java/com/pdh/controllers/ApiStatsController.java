@@ -18,7 +18,7 @@ public class ApiStatsController {
     @GetMapping("/revenues")
     public ResponseEntity<?> getRevenues() {
         try {
-            return ResponseEntity.ok(statsService.getRevenueByProduct());
+            return ResponseEntity.ok(statsService.getRevenueByCourse());
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error while fetching revenues");
         }

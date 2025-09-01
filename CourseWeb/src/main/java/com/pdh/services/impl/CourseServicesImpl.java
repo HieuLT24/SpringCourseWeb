@@ -57,7 +57,7 @@ public class CourseServicesImpl implements CourseServices {
 
     @Override
     public void addOrUpdate(Course course) {
-        if (!course.getFile().isEmpty()) {
+        if (course.getFile() != null && !course.getFile().isEmpty()) {
             try {
                 Map res = this.cloudinary.uploader().upload(course.getFile().getBytes(), ObjectUtils.asMap("resource_type", "auto"));
                 course.setImage((String) res.get("secure_url"));

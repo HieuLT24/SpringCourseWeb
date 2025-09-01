@@ -21,13 +21,18 @@ public class StatsServicesImpl implements StatsServices {
     private StatsRepository statsRepo;
 
     @Override
-    public List<Object[]> getRevenueByProduct() {
+    public List<Object[]> getRevenueByCourse() {
         return this.statsRepo.getRevenueByCourse();
     }
 
     @Override
     public List<Object[]> getRevenueByTime(String time, int year) {
         return this.statsRepo.getRevenueByTime(time, year);
+    }
+
+    @Override
+    public List<Object[]> getRevenueByTimeAndCourse(String time, int year, Integer courseId) {
+        return this.statsRepo.getRevenueByTimeAndCourse(time, year, courseId);
     }
 
 }

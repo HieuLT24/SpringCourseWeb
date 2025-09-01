@@ -21,6 +21,7 @@ public interface UserServices extends UserDetailsService {
     boolean isEmailExists(String email);
     void createOrUpdateUser(User user);
     void updateProfile(User user);
+    void updateUserByAdmin(User user);
     void changePassword(User user, String newPassword);
     List<User> getUsers();
     User getUserById(int id);

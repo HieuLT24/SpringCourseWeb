@@ -100,6 +100,70 @@ class AdminService {
       };
     }
   }
+
+  async getRevenueByCourse() {
+    try {
+      const response = await axios.get(endpoints.admin.getRevenueByCourse);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error.response?.data?.message || 'Lấy doanh thu theo khóa học thất bại' 
+      };
+    }
+  }
+
+  async getPendingCourses(params = {}) {
+    try {
+      const response = await axios.get(endpoints.admin.getPendingCourses, { params });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error.response?.data?.message || 'Lấy danh sách khóa học chờ duyệt thất bại' 
+      };
+    }
+  }
+
+  async getAllCoursesForAdmin(params = {}) {
+    try {
+      const response = await axios.get(endpoints.admin.listCourses, { params });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error.response?.data?.message || 'Lấy danh sách khóa học thất bại' 
+      };
+    }
+  }
+
+  async getTotalRevenue() {
+    try {
+      const response = await axios.get(endpoints.admin.getTotalRevenue);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error.response?.data?.message || 'Lấy tổng doanh thu thất bại' 
+      };
+    }
+  }
+
+  async getRevenueByMonth(year, courseId = null) {
+    try {
+      const params = { year };
+      if (courseId) {
+        params.courseId = courseId;
+      }
+      const response = await axios.get(endpoints.admin.getRevenueByMonth, { params });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error.response?.data?.message || 'Lấy doanh thu theo tháng thất bại' 
+      };
+    }
+  }
 }
 
 export const adminService = new AdminService();

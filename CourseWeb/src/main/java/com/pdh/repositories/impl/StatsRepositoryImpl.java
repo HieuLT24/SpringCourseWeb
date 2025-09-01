@@ -78,4 +78,39 @@ public class StatsRepositoryImpl implements StatsRepository {
         return q.getResultList();
     }
 
+    @Override
+    public List<Object[]> getRevenueByTimeAndCourse(String time, int year, Integer courseId) {
+        Session s = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder b = s.getCriteriaBuilder();
+        CriteriaQuery<Object[]> query = b.createQuery(Object[].class);
+
+        Root<Payment> root = query.from(Payment.class);
+        Join<Payment, Enrollment> enrollmentJoin = root.join("enrollmentId");
+        Join<Enrollment, Course> courseJoin = enrollmentJoin.join("courseId");
+        
+        Expression<Integer> timeExpr = b.function(time, Integer.class, root.get("timeStamp"));
+        query.multiselect(
+                timeExpr,
+                b.sum(root.get("amount"))
+        );
+        
+        // Base conditions
+        var conditions = b.and(
+                b.equal(b.function("YEAR", Integer.class, root.get("timeStamp")), year),
+                b.equal(root.get("status"), "SUCCESS")
+        );
+        
+        // Add course filter if courseId is provided
+        if (courseId != null) {
+            conditions = b.and(conditions, b.equal(courseJoin.get("id"), courseId));
+        }
+        
+        query.where(conditions);
+        query.groupBy(timeExpr);
+        query.orderBy(b.asc(timeExpr));
+
+        Query q = s.createQuery(query);
+        return q.getResultList();
+    }
+
 }

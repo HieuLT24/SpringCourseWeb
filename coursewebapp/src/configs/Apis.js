@@ -17,6 +17,7 @@ export const endpoints = {
         'getById': 'users/{id}',
         'getCurrent': 'users/me',
         'updateProfile': 'users/me',
+        'update': 'users/{id}',
         'changePassword': 'users/me',
         'delete': 'users/{id}'
     },
@@ -80,16 +81,17 @@ export const endpoints = {
         'dashboard': 'admin/dashboard',
         'getCategories': 'admin/categories',
         'listCourses': 'admin/courses',
+        'getPendingCourses': 'admin/courses/pending',
         'getCourse': 'admin/courses/{courseId}',
         'saveCourse': 'admin/courses',
         'updateCourse': 'admin/courses/{courseId}',
         'deleteCourse': 'admin/courses/{courseId}',
-        'getStats': 'admin/stats'
+        'getStats': 'admin/stats',
+        'getRevenueByCourse': 'admin/revenue-by-course',
+        'getTotalRevenue': 'admin/total-revenue',
+        'getRevenueByMonth': 'admin/revenue-by-month'
     },
 
-    'stats': {
-        'revenues': 'stats/revenues'
-    }
 };
 
 export const buildUrl = (endpoint, params = {}) => {
