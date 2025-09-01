@@ -1,11 +1,53 @@
-import React, { useState } from 'react';
-import { Link, useLocation, Outlet } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 const AdminLayout = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const { currentUser: user, logout, loading } = useAuth();
+
+  // Kiểm tra quyền admin
+  useEffect(() => {
+    // Nếu AuthContext đang loading, chờ
+    if (loading) {
+      return;
+    }
+    
+    if (!user) {
+      // Chưa đăng nhập
+      navigate('/login');
+      return;
+    }
+    
+    if (user.role !== 'ADMIN') {
+      // Không phải admin
+      alert('Bạn không có quyền truy cập trang quản trị!');
+      navigate('/');
+      return;
+    }
+    
+    // Nếu là admin, cho phép hiển thị
+    setIsCheckingAuth(false);
+  }, [user, loading, navigate]);
+
+  // Hiển thị loading khi đang kiểm tra auth
+  if (loading || isCheckingAuth) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+        <div className="text-center">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Đang kiểm tra quyền truy cập...</span>
+          </div>
+          <p className="mt-3">
+            {loading ? 'Đang tải thông tin người dùng...' : 'Đang kiểm tra quyền truy cập...'}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const menuItems = [
     {

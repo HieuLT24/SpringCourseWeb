@@ -98,7 +98,7 @@ public class SpringSecurityConfigs {
                 .requestMatchers("/api/learning/**").authenticated()
                 // Admin area - both web pages and API endpoints
                 .requestMatchers("/admin/**").hasAuthority("ADMIN")
-                // Admin API endpoints
+                // Admin API endpoints - chỉ cho phép ADMIN
                 .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                 // Default: allow other requests (APIs không yêu cầu chứng thực)
                 .anyRequest().permitAll())

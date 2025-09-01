@@ -26,6 +26,7 @@ import ResetPassword from './components/system/ResetPassword';
 import PaymentResult from './components/system/PaymentResult';
 import Profile from './components/Profile';
 import CourseHistory from './components/CourseHistory';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -38,31 +39,63 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/course-history" element={<CourseHistory />} />
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } />
+              <Route path="/course-history" element={
+                <ProtectedRoute>
+                  <CourseHistory />
+                </ProtectedRoute>
+              } />
               {/* Placeholder cho các trang khác */}
               <Route path="/courses" element={<Courses />} />
               <Route path="/courses/:id" element={<CourseDetail />} />
-              <Route path="/courses/create" element={<CreateCourse />} />
-              {/* Admin */}
-              <Route path="/admin" element={<AdminLayout />}>
+              <Route path="/courses/create" element={
+                <ProtectedRoute requiredRole="TEACHER">
+                  <CreateCourse />
+                </ProtectedRoute>
+              } />
+              {/* Admin - Protected by ADMIN role */}
+              <Route path="/admin" element={
+                <ProtectedRoute requiredRole="ADMIN">
+                  <AdminLayout />
+                </ProtectedRoute>
+              }>
                 <Route index element={<AdminDashboard />} />
                 <Route path="dashboard" element={<AdminDashboard />} />
                 <Route path="pending-courses" element={<PendingCourses />} />
                 <Route path="user-management" element={<UserManagement />} />
                 <Route path="stats" element={<AdminStats />} />
               </Route>
-              {/* Learning */}
-              <Route path="/learning" element={<LearningList />} />
-              <Route path="/learning/course/:id" element={<DashboardLayout />}>
+              {/* Learning - Protected routes */}
+              <Route path="/learning" element={
+                <ProtectedRoute>
+                  <LearningList />
+                </ProtectedRoute>
+              } />
+              <Route path="/learning/course/:id" element={
+                <ProtectedRoute>
+                  <DashboardLayout />
+                </ProtectedRoute>
+              }>
                 <Route path="lectures" element={<Lecture />} />
                 <Route path="exams" element={<Exam />} />
                 <Route path="forum" element={<Forum />} />
                 <Route path="forum/post/:postId" element={<Forum />} />
                 <Route index element={<Lecture />} />
               </Route>
-              <Route path="/learning/exam/:id" element={<Exam />} />
-              <Route path="/learning/forum" element={<Forum />} />
+              <Route path="/learning/exam/:id" element={
+                <ProtectedRoute>
+                  <Exam />
+                </ProtectedRoute>
+              } />
+              <Route path="/learning/forum" element={
+                <ProtectedRoute>
+                  <Forum />
+                </ProtectedRoute>
+              } />
               {/* System */}
               <Route path="/error" element={<ErrorPage />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />

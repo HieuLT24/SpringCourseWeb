@@ -36,7 +36,7 @@ public class EnrollmentServicesImpl implements EnrollmentServices {
     @Override
     public boolean isUserEnrolled(int userId, int courseId) {
         Enrollment enrollment = this.enrollmentRepo.getEnrollmentByUserAndCourse(userId, courseId);
-        return enrollment != null;
+        return enrollment != null && "ACTIVE".equals(enrollment.getStatus());
     }
 
     @Override
@@ -58,6 +58,11 @@ public class EnrollmentServicesImpl implements EnrollmentServices {
     @Override
     public List<Course> getEnrolledCourses(int userId) {
         return this.enrollmentRepo.getEnrolledCourses(userId);
+    }
+
+    @Override
+    public List<Course> getAllEnrolledCourses(int userId) {
+        return this.enrollmentRepo.getAllEnrolledCourses(userId);
     }
 
     @Override

@@ -7,6 +7,9 @@ package com.pdh.repositories.impl;
 import com.pdh.pojo.Course;
 import com.pdh.pojo.Enrollment;
 import com.pdh.repositories.EnrollmentRepository;
+
+import java.util.List;
+
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +71,15 @@ public class EnrollmentRepositoryImpl implements EnrollmentRepository {
     @Override
     public java.util.List<Course> getEnrolledCourses(int userId) {
         Session s = this.factory.getObject().getCurrentSession();
+        String hql = "SELECT e.courseId FROM Enrollment e WHERE e.userId.id = :userId AND e.status = 'ACTIVE'";
+        Query<Course> q = s.createQuery(hql, Course.class);
+        q.setParameter("userId", userId);
+        return q.getResultList();
+    }
+
+    @Override
+    public List<Course> getAllEnrolledCourses(int userId) {
+        Session s = this.factory.getObject().getCurrentSession();
         String hql = "SELECT e.courseId FROM Enrollment e WHERE e.userId.id = :userId";
         Query<Course> q = s.createQuery(hql, Course.class);
         q.setParameter("userId", userId);
@@ -77,7 +89,7 @@ public class EnrollmentRepositoryImpl implements EnrollmentRepository {
     @Override
     public long getEnrollmentCountByCourseId(int courseId) {
         Session s = this.factory.getObject().getCurrentSession();
-        String hql = "SELECT COUNT(e.id) FROM Enrollment e WHERE e.courseId.id = :courseId";
+        String hql = "SELECT COUNT(e.id) FROM Enrollment e WHERE e.courseId.id = :courseId AND e.status = 'ACTIVE'";
         Query<Long> q = s.createQuery(hql, Long.class);
         q.setParameter("courseId", courseId);
         return q.getSingleResult();

@@ -18,5 +18,6 @@ public interface EnrollmentRepository {
     void updateEnrollment(Enrollment enrollment);
     void deleteEnrollment(int enrollmentId);
     List<Course> getEnrolledCourses(int userId);
+    List<Course> getAllEnrolledCourses(int userId); // Bao gồm cả PENDING và ACTIVE
     long getEnrollmentCountByCourseId(int courseId);
 }

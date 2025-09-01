@@ -20,5 +20,6 @@ public interface EnrollmentServices {
     Enrollment updateEnrollment(Enrollment enrollment);
     void deleteEnrollment(int enrollmentId);
     List<Course> getEnrolledCourses(int userId);
+    List<Course> getAllEnrolledCourses(int userId);
     long getEnrollmentCountByCourseId(int courseId);
 }

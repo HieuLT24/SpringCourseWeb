@@ -47,14 +47,12 @@ public class ApiIndexController {
         List<Course> courses = courseService.getCourses(params);
 
         List<Course> myCourses = new ArrayList<>();
-        // Ưu tiên lấy từ SecurityContext nếu đã có
         if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())) {
             User u = userServices.getUserByUsername(authentication.getName());
             if (u != null) {
                 myCourses = enrollmentServices.getEnrolledCourses(u.getId());
             }
         } else {
-            // Fallback: đọc JWT từ header Authorization để xác định người dùng
             String authHeader = request.getHeader("Authorization");
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 String token = authHeader.substring(7);
