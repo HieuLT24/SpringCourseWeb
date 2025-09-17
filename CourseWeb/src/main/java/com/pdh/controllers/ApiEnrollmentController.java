@@ -35,7 +35,6 @@ public class ApiEnrollmentController {
     @Autowired
     private UserServices userService;
 
-    // JwtUtil không còn dùng trực tiếp vì đã có JwtAuthenticationFilter
 
     @PostMapping("/{courseId}/enrollments")
     public ResponseEntity<?> enrollCourse(@PathVariable int courseId, Authentication authentication, HttpServletRequest request) {

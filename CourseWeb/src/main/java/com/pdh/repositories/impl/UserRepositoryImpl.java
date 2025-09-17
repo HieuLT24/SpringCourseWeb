@@ -118,4 +118,16 @@ public class UserRepositoryImpl implements UserRepository{
         User u = s.get(User.class, id);
         s.remove(u);
     }
+
+    @Override
+    public User createUserFromGoogle(String email, String name, String pictureUrl) {
+        Session s = this.factory.getObject().getCurrentSession();
+        User user = new User();
+        user.setEmail(email);
+        user.setName(name);
+        user.setRole("USER");
+        user.setUsername(email);
+        s.persist(user);
+        return user;
+    }
 }

@@ -67,14 +67,12 @@ public class PaymentServicesImpl implements PaymentServices {
             Payment savedPayment = paymentRepository.createPayment(payment);
 
             if ("MOMO".equals(payment.getMethod())) {
-                // Thanh toán MoMo - tạo URL thanh toán
                 String momoUrl = createMoMoPaymentUrl(savedPayment.getId(), payment.getAmount());
                 savedPayment.setQrCodeData(momoUrl);
                 savedPayment.setStatus("PENDING");
                 paymentRepository.updatePayment(savedPayment);
 
             } else if ("VNPAY".equals(payment.getMethod())) {
-                // Thanh toán VNPay - tạo URL thanh toán
                 String vnpayUrl = createVNPayPaymentUrl(savedPayment.getId(), payment.getAmount());
                 savedPayment.setQrCodeData(vnpayUrl);
                 savedPayment.setStatus("PENDING");
@@ -152,7 +150,6 @@ public class PaymentServicesImpl implements PaymentServices {
             String requestType = "captureWallet";
             String extraData = "";
 
-            // raw signature
             String rawData = "accessKey=" + accessKey +
                     "&amount=" + amount.intValue() +
                     "&extraData=" + extraData +
@@ -166,7 +163,6 @@ public class PaymentServicesImpl implements PaymentServices {
 
             String signature = HmacUtil.hmacSHA256(rawData, secretKey);
 
-            // Tạo JSON body
             String jsonRequest = "{"
                     + "\"partnerCode\":\"" + partnerCode + "\","
                     + "\"partnerName\":\"MoMoTest\","
@@ -182,7 +178,6 @@ public class PaymentServicesImpl implements PaymentServices {
                     + "\"requestType\":\"" + requestType + "\","
                     + "\"signature\":\"" + signature + "\"}";
 
-            // Gửi POST request
             java.net.URL url = new java.net.URL(endpoint);
             java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
@@ -203,7 +198,6 @@ public class PaymentServicesImpl implements PaymentServices {
                 response.append(responseLine.trim());
             }
 
-            // Parse JSON để lấy payUrl
             org.json.JSONObject json = new org.json.JSONObject(response.toString());
             return json.getString("payUrl");
 
@@ -267,7 +261,6 @@ public class PaymentServicesImpl implements PaymentServices {
             }
 
 
-            // Ký hash HMAC SHA512
             String secureHash = HmacUtil.hmacSHA512(hashData.toString(), vnp_HashSecret);
             query.append("&vnp_SecureHash=").append(secureHash);
 

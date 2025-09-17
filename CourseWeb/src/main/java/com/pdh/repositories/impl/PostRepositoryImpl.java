@@ -24,7 +24,6 @@ public class PostRepositoryImpl implements PostRepository {
     @Override
     public List<Post> getPostsByForumId(int forumId) {
         Session s = this.factory.getObject().getCurrentSession();
-        // Sử dụng HQL với JOIN FETCH để lấy user data
         String hql = "FROM Post p JOIN FETCH p.userId WHERE p.forumId.id = :forumId ORDER BY p.createdAt DESC";
         Query q = s.createQuery(hql, Post.class);
         q.setParameter("forumId", forumId);
@@ -34,7 +33,6 @@ public class PostRepositoryImpl implements PostRepository {
     @Override
     public Post getPostById(int id) {
         Session s = this.factory.getObject().getCurrentSession();
-        // Sử dụng HQL với JOIN FETCH để lấy user data
         String hql = "FROM Post p JOIN FETCH p.userId WHERE p.id = :id";
         Query q = s.createQuery(hql, Post.class);
         q.setParameter("id", id);

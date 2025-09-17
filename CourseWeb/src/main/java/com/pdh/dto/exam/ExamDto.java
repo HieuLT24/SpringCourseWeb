@@ -45,7 +45,6 @@ public class ExamDto {
         }
     }
 
-    // Getters and Setters
     public Integer getId() {
         return id;
     }

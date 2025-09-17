@@ -23,7 +23,6 @@ public class QuestionRepositoryImpl implements QuestionRepository {
     @Override
     public List<Question> getQuestionsByExamId(int examId) {
         Session s = this.factory.getObject().getCurrentSession();
-        // Fetch join answers để khởi tạo answerSet trước khi serialize JSON
         TypedQuery<Question> q = s.createQuery(
             "SELECT DISTINCT q FROM Question q LEFT JOIN FETCH q.answerSet WHERE q.examId.id = :examId",
             Question.class);
@@ -63,14 +62,12 @@ public class QuestionRepositoryImpl implements QuestionRepository {
         Question question = this.getQuestionById(id);
         if (question != null) {
             try {
-                // Xóa các đáp án liên quan trước
                 Query deleteAnswersQuery = s.createNativeQuery(
                     "DELETE FROM answer WHERE question_id = :questionId"
                 );
                 deleteAnswersQuery.setParameter("questionId", id);
                 deleteAnswersQuery.executeUpdate();
                 
-                // Sau đó xóa câu hỏi
                 s.remove(question);
                 
             } catch (Exception e) {
@@ -84,12 +81,10 @@ public class QuestionRepositoryImpl implements QuestionRepository {
         Session s = this.factory.getObject().getCurrentSession();
         Map<String, Object> result = new HashMap<>();
         
-        // Đếm tổng số câu hỏi
         Query countQuery = s.createQuery("SELECT COUNT(q) FROM Question q WHERE q.examId.id = :examId");
         countQuery.setParameter("examId", examId);
         Long total = (Long) countQuery.getSingleResult();
         
-        // Lấy câu hỏi có phân trang
         TypedQuery<Question> query = s.createQuery(
             "SELECT DISTINCT q FROM Question q LEFT JOIN FETCH q.answerSet WHERE q.examId.id = :examId ORDER BY q.id",
             Question.class);

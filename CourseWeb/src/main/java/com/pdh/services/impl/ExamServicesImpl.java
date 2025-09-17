@@ -72,13 +72,11 @@ public class ExamServicesImpl implements ExamServices {
     @Override
     public Exam updateExam(int id, Exam exam) {
         try {
-            // Lấy exam hiện tại để có courseId và các thông tin liên quan
             Exam existingExam = this.examRepo.getExamById(id);
             if (existingExam == null) {
                 throw new RuntimeException("Không tìm thấy bài kiểm tra với ID: " + id);
             }
             
-            // Cập nhật các trường
             existingExam.setTitle(exam.getTitle());
             existingExam.setDescription(exam.getDescription());
             existingExam.setType(exam.getType());
@@ -87,10 +85,8 @@ public class ExamServicesImpl implements ExamServices {
             existingExam.setIsActive(exam.getIsActive());
             existingExam.setDurationMinutes(exam.getDurationMinutes());
             
-            // Lưu thay đổi
             this.examRepo.addOrUpdate(existingExam);
             
-            // Trả về exam đã được cập nhật
             return this.examRepo.getExamById(id);
             
         } catch (Exception e) {
@@ -117,13 +113,11 @@ public class ExamServicesImpl implements ExamServices {
             return false;
         }
         
-        // Kiểm tra xem user có đăng ký khóa học không
         Course course = exam.getCourseId();
         if (course == null) {
             return false;
         }
         
-        // TODO: Thêm logic kiểm tra enrollment
         return true;
     }
 }

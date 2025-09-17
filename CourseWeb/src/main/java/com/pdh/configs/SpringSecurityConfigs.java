@@ -45,8 +45,6 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 public class SpringSecurityConfigs {
 
     @Autowired
-    private UserDetailsService userDetailsService;
-    @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
@@ -67,19 +65,15 @@ public class SpringSecurityConfigs {
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(requests -> requests
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // Public web pages and static resources
                 .requestMatchers("/", "/home", "/login", "/register", "/forgot-password", "/reset-password", "/courses/**", "/css/**", "/js/**", "/images/**").permitAll()
-                // Public APIs
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/courses").permitAll()
-                // Protected APIs: yêu cầu đã đăng nhập
                 .requestMatchers("/api/courses/*/enrollments").authenticated()
                 .requestMatchers("/api/payment/process").authenticated()
                 .requestMatchers("/api/payment/callback/**").permitAll()
                 .requestMatchers("/api/users/me/**").authenticated()
                 
-                // TEACHER-only APIs
                 .requestMatchers(HttpMethod.POST, "/api/courses/create").hasAuthority("TEACHER")
                 .requestMatchers(HttpMethod.POST, "/api/learning/course/*/lectures").hasAuthority("TEACHER")
                 .requestMatchers(HttpMethod.PUT, "/api/learning/course/*/lecture/*").hasAuthority("TEACHER")
@@ -94,20 +88,15 @@ public class SpringSecurityConfigs {
                 .requestMatchers(HttpMethod.PUT, "/api/learning/course/*/exam/*/question/*/answer/*").hasAuthority("TEACHER")
                 .requestMatchers(HttpMethod.DELETE, "/api/learning/course/*/exam/*/question/*/answer/*").hasAuthority("TEACHER")
                 
-                // Other learning APIs (GET requests) - authenticated users can access
                 .requestMatchers("/api/learning/**").authenticated()
-                // Admin area - both web pages and API endpoints
                 .requestMatchers("/admin/**").hasAuthority("ADMIN")
-                // Admin API endpoints - chỉ cho phép ADMIN
                 .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-                // Default: allow other requests (APIs không yêu cầu chứng thực)
                 .anyRequest().permitAll())
             .formLogin(form -> form.loginPage("/login")
                 .loginProcessingUrl("/login")
                 .successHandler((request, response, authentication) -> {
                     try {
                         String contextPath = request.getContextPath();
-                        // Kiểm tra authority ADMIN
                         boolean isAdmin = authentication.getAuthorities().stream()
                             .anyMatch(a -> a.getAuthority().equals("ADMIN"));
                         
@@ -149,8 +138,6 @@ public class SpringSecurityConfigs {
         configuration.setAllowCredentials(true);
         configuration.addAllowedOriginPattern("*");
         configuration.addAllowedHeader("*");
-        configuration.addAllowedHeader("Authorization");
-        configuration.addAllowedHeader("ngrok-skip-browser-warning");
         configuration.addAllowedMethod("*");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

@@ -100,7 +100,6 @@ public class StatsRepositoryImpl implements StatsRepository {
                 b.equal(root.get("status"), "SUCCESS")
         );
         
-        // Add course filter if courseId is provided
         if (courseId != null) {
             conditions = b.and(conditions, b.equal(courseJoin.get("id"), courseId));
         }

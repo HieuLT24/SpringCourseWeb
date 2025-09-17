@@ -22,7 +22,6 @@ public class CreateCourseRequest {
     
     private MultipartFile image;
     
-    // Constructors
     public CreateCourseRequest() {}
     
     public CreateCourseRequest(String title, String description, Double price, String categoryName, MultipartFile image) {
@@ -33,7 +32,6 @@ public class CreateCourseRequest {
         this.image = image;
     }
     
-    // Getters and Setters
     public String getTitle() {
         return title;
     }

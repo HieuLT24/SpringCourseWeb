@@ -19,6 +19,7 @@ import com.pdh.services.UserServices;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 import jakarta.validation.Valid;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @RestController
 @RequestMapping("/api/users")
@@ -80,7 +81,6 @@ public class ApiUserController {
         if (u == null) {
             return ResponseEntity.status(401).body("Không tìm thấy user");
         }
-        // Chỉ cho phép cập nhật name, email
         u.setEmail(updatedUser.getEmail());
         u.setName(updatedUser.getName());
         userServices.updateProfile(u);
@@ -100,8 +100,7 @@ public class ApiUserController {
             return ResponseEntity.badRequest().body("Mật khẩu xác nhận không khớp!");
         }
 
-        // So sánh mật khẩu cũ bằng BCrypt
-        org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder encoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         if (!encoder.matches(request.getOldPassword(), u.getPassword())) {
             return ResponseEntity.badRequest().body("Mật khẩu cũ không đúng!");
         }
@@ -119,10 +118,8 @@ public class ApiUserController {
                 return ResponseEntity.notFound().build();
             }
             
-            // Set ID để đảm bảo update đúng user
             updatedUser.setId(id);
             
-            // Sử dụng method riêng cho admin update
             userServices.updateUserByAdmin(updatedUser);
             return ResponseEntity.ok("Cập nhật thành công!");
         } catch (RuntimeException e) {

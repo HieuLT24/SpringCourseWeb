@@ -53,7 +53,6 @@ public class JwtUtil {
                     .parseClaimsJws(token)
                     .getBody();
             
-            // Check if token is expired
             if (claims.getExpiration() != null && claims.getExpiration().before(new Date())) {
                 System.err.println("JWT token is expired");
                 return null;

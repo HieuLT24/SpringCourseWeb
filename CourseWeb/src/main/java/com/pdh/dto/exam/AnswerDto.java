@@ -18,7 +18,6 @@ public class AnswerDto {
         this.questionId = answer.getQuestionId() != null ? answer.getQuestionId().getId() : null;
     }
 
-    // Getters and Setters
     public Integer getId() {
         return id;
     }

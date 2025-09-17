@@ -57,7 +57,6 @@ public class CommentServicesImpl implements CommentServices {
         dto.setContent(comment.getContent());
         dto.setCreatedAt(comment.getCreatedAt());
         
-        // Convert User to UserDto
         User user = comment.getUserId();
         if (user != null) {
             UserDto userDto = new UserDto();

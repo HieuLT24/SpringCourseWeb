@@ -22,9 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Controller xử lý API cho admin
- */
+
 @RestController
 @RequestMapping("/api/admin")
 @CrossOrigin
@@ -46,17 +44,14 @@ public class ApiAdminController {
     public ResponseEntity<Map<String, Object>> adminDashboard(@RequestParam(required = false) Map<String, String> params) {
         Map<String, Object> result = new HashMap<>();
         try {
-            // Lấy tất cả khóa học
             List<Course> allCourses = courseService.getCourses(params);
             
-            // Thống kê cơ bản
             long totalUsers = userService.getUsers().size();
             long totalCourses = allCourses.size();
             long pendingCourses = allCourses.stream()
                 .filter(course -> "pending".equals(course.getStatus()))
                 .count();
             
-            // Tính tổng doanh thu
             List<Object[]> revenues = statsService.getRevenueByCourse();
             double totalRevenue = revenues.stream()
                 .mapToDouble(revenue -> {
@@ -73,7 +68,6 @@ public class ApiAdminController {
                 })
                 .sum();
             
-            // Kết quả
             result.put("totalUsers", totalUsers);
             result.put("totalCourses", totalCourses);
             result.put("pendingCourses", pendingCourses);
@@ -245,7 +239,6 @@ public class ApiAdminController {
         try {
             List<Object[]> rawData;
             
-            // Sử dụng method phù hợp dựa trên có courseId hay không
             if (courseId != null) {
                 rawData = statsService.getRevenueByTimeAndCourse("MONTH", year, courseId);
             } else {
@@ -258,8 +251,8 @@ public class ApiAdminController {
                         return null;
                     }
                     Map<String, Object> monthRevenue = new HashMap<>();
-                    monthRevenue.put("month", row[0]);      // month number (1-12)
-                    monthRevenue.put("revenue", row[1]);    // sum(amount)
+                    monthRevenue.put("month", row[0]);
+                    monthRevenue.put("revenue", row[1]);
                     return monthRevenue;
                 })
                 .filter(item -> item != null)

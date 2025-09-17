@@ -20,7 +20,6 @@ public class CommentRepositoryImpl implements CommentRepository {
     @Override
     public List<Comment> getCommentsByPostId(int postId) {
         Session s = this.factory.getObject().getCurrentSession();
-        // Sử dụng HQL với JOIN FETCH để lấy user data
         String hql = "FROM Comment c JOIN FETCH c.userId WHERE c.postId.id = :postId ORDER BY c.createdAt ASC";
         Query q = s.createQuery(hql, Comment.class);
         q.setParameter("postId", postId);
@@ -30,7 +29,6 @@ public class CommentRepositoryImpl implements CommentRepository {
     @Override
     public Comment getCommentById(int id) {
         Session s = this.factory.getObject().getCurrentSession();
-        // Sử dụng HQL với JOIN FETCH để lấy user data
         String hql = "FROM Comment c JOIN FETCH c.userId WHERE c.id = :id";
         Query q = s.createQuery(hql, Comment.class);
         q.setParameter("id", id);

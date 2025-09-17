@@ -21,6 +21,7 @@ com\pdh\utils\JwtUtil.class
 com\pdh\controllers\ApiIndexController.class
 com\pdh\pojo\Enrollment.class
 com\pdh\repositories\impl\PaymentRepositoryImpl.class
+com\pdh\controllers\ApiAdminController.class
 com\pdh\services\ExamServices.class
 com\pdh\services\impl\UserServicesImpl.class
 com\pdh\repositories\CourseRepository.class

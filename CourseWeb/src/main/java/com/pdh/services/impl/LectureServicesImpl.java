@@ -63,7 +63,6 @@ public class LectureServicesImpl implements LectureServices {
     @Override
     public Lecture createLecture(LectureRequest request) {
         try {
-            // Validate authentication
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
                 throw new RuntimeException("Bạn cần đăng nhập để thực hiện chức năng này");
@@ -76,7 +75,6 @@ public class LectureServicesImpl implements LectureServices {
                 throw new RuntimeException("Không tìm thấy thông tin người dùng");
             }
             
-            // Kiểm tra xem user có phải là teacher của course này không
             Course course = courseService.getCourseById(request.getCourseId());
             if (course == null) {
                 throw new RuntimeException("Không tìm thấy khóa học");
@@ -91,7 +89,6 @@ public class LectureServicesImpl implements LectureServices {
             lecture.setCreatedAt(new Date());
             lecture.setCourseId(course);
             
-            // Upload video nếu có
             if (request.getVideo() != null && !request.getVideo().isEmpty()) {
                 try {
                     Map result = cloudinary.uploader().upload(
@@ -104,7 +101,6 @@ public class LectureServicesImpl implements LectureServices {
                 }
             }
             
-            // Upload attachment nếu có
             if (request.getAttachment() != null && !request.getAttachment().isEmpty()) {
                 try {
                     Map result = cloudinary.uploader().upload(
@@ -128,7 +124,6 @@ public class LectureServicesImpl implements LectureServices {
     @Override
     public Lecture updateLecture(int lectureId, LectureRequest request) {
         try {
-            // Validate authentication
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
                 throw new RuntimeException("Bạn cần đăng nhập để thực hiện chức năng này");
@@ -141,13 +136,11 @@ public class LectureServicesImpl implements LectureServices {
                 throw new RuntimeException("Không tìm thấy thông tin người dùng");
             }
             
-            // Lấy lecture hiện tại
             Lecture existingLecture = this.lectureRepo.getLectureById(lectureId);
             if (existingLecture == null) {
                 throw new RuntimeException("Không tìm thấy bài giảng");
             }
             
-            // Kiểm tra xem user có phải là teacher của course này không
             Course course = courseService.getCourseById(existingLecture.getCourseId().getId());
             if (course == null) {
                 throw new RuntimeException("Không tìm thấy khóa học");
@@ -157,10 +150,8 @@ public class LectureServicesImpl implements LectureServices {
                 throw new RuntimeException("Bạn không có quyền chỉnh sửa bài giảng này");
             }
             
-            // Cập nhật thông tin cơ bản
             existingLecture.setContent(request.getContent().trim());
             
-            // Upload video mới nếu có
             if (request.getVideo() != null && !request.getVideo().isEmpty()) {
                 try {
                     Map result = cloudinary.uploader().upload(
@@ -173,7 +164,6 @@ public class LectureServicesImpl implements LectureServices {
                 }
             }
             
-            // Upload attachment mới nếu có
             if (request.getAttachment() != null && !request.getAttachment().isEmpty()) {
                 try {
                     Map result = cloudinary.uploader().upload(

@@ -42,7 +42,6 @@ public class AuthServiceImpl implements AuthService {
                 return response;
             }
             
-            // Tạo JWT token
             String accessToken = jwtUtil.generateToken(user.getUsername());
             String refreshToken = jwtUtil.generateRefreshToken(user.getUsername());
             
@@ -71,8 +70,6 @@ public class AuthServiceImpl implements AuthService {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            // Có thể implement blacklist token ở đây
-            // Hiện tại chỉ trả về success
             response.put("success", true);
             response.put("message", "Đăng xuất thành công");
             
@@ -104,7 +101,6 @@ public class AuthServiceImpl implements AuthService {
                 return response;
             }
             
-            // Tạo token mới
             String newAccessToken = jwtUtil.generateToken(username);
             String newRefreshToken = jwtUtil.generateRefreshToken(username);
             

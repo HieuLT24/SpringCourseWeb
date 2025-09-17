@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import Apis, { endpoints } from '../configs/Apis';
 
 function Login() {
-  const { login } = useAuth();
+  const { login, loginGoogle } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -11,7 +12,7 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-
+  const googleBtnRef = useRef(null);
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -55,12 +56,49 @@ function Login() {
       setLoading(false);
     }
   };
+
+  const handleGoogleCredential = async (credential) => {
+    try {
+      const res = await loginGoogle(credential);
+      if (res.success) {
+        navigate('/');
+      } else {
+        setError(res.message || 'Đăng nhập thất bại');
+      }
+    } catch (err) {
+      setError('Có lỗi xảy ra khi đăng nhập');
+      console.error('Login error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const res = await Apis.get(endpoints.auth.googleClientId);
+        const clientId = res.data.clientId;
+        if (window.google && googleBtnRef.current && clientId) {
+          window.google.accounts.id.initialize({
+            client_id: clientId,
+            callback: (response) => handleGoogleCredential(response.credential)
+          });
+          window.google.accounts.id.renderButton(googleBtnRef.current, { theme: 'outline', size: 'large', width: 300 });
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    init();
+  }, []);
+
+
   return (
     <div className="content-wrapper py-5">
       <div className="container">
-        <div className="mx-auto bg-white p-4 rounded-3 shadow" style={{maxWidth: 500}}>
+        <div className="mx-auto bg-white p-4 rounded-3 shadow" style={{ maxWidth: 500 }}>
           <div className="text-center mb-4">
-            <i className="fas fa-graduation-cap fa-3x mb-3" style={{color: 'var(--bs-primary)'}}></i>
+            <i className="fas fa-graduation-cap fa-3x mb-3" style={{ color: 'var(--bs-primary)' }}></i>
             <h1>Đăng nhập</h1>
             <p className="text-muted">Chào mừng bạn quay trở lại CourseWeb</p>
           </div>
@@ -71,12 +109,12 @@ function Login() {
                 {error}
               </div>
             )}
-            
+
             <div className="form-floating mb-3">
-              <input 
-                type="text" 
-                className="form-control" 
-                id="username" 
+              <input
+                type="text"
+                className="form-control"
+                id="username"
                 name="username"
                 placeholder="Tên đăng nhập"
                 value={formData.username}
@@ -86,12 +124,12 @@ function Login() {
               />
               <label htmlFor="username"><i className="fas fa-user me-2"></i>Tên đăng nhập</label>
             </div>
-            
+
             <div className="form-floating mb-3">
-              <input 
-                type="password" 
-                className="form-control" 
-                id="password" 
+              <input
+                type="password"
+                className="form-control"
+                id="password"
                 name="password"
                 placeholder="Mật khẩu"
                 value={formData.password}
@@ -101,11 +139,11 @@ function Login() {
               />
               <label htmlFor="password"><i className="fas fa-lock me-2"></i>Mật khẩu</label>
             </div>
-            
-            <button 
-              type="submit" 
-              className="btn w-100 text-white" 
-              style={{background: 'linear-gradient(135deg, var(--bs-primary), var(--bs-indigo))', borderRadius: 25, padding: '.75rem 2rem'}}
+
+            <button
+              type="submit"
+              className="btn w-100 text-white"
+              style={{ background: 'linear-gradient(135deg, var(--bs-primary), var(--bs-indigo))', borderRadius: 25, padding: '.75rem 2rem' }}
               disabled={loading}
             >
               {loading ? (
@@ -115,6 +153,10 @@ function Login() {
               )}
             </button>
           </form>
+
+          <div className="my-3 d-flex justify-content-center">
+            <div ref={googleBtnRef} />
+          </div>
 
           <div className="text-center mt-3">
             <Link to="/forgot-password" className="text-decoration-none text-muted">

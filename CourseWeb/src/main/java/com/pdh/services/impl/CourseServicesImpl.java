@@ -73,7 +73,6 @@ public class CourseServicesImpl implements CourseServices {
     @Transactional
     public Course createCourse(CreateCourseRequest request, Integer teacherId) {
         try {
-            // Validate input parameters
             if (request == null || teacherId == null) {
                 throw new IllegalArgumentException("Request và teacherId không được null");
             }
@@ -100,7 +99,6 @@ public class CourseServicesImpl implements CourseServices {
             course.setPrice(request.getPrice());
             course.setStatus("pending");
             
-            // Handle category
             String categoryName = request.getCategoryName().trim();
             Category category = categoryService.getCategoryByName(categoryName);
             if (category == null) {
@@ -113,7 +111,6 @@ public class CourseServicesImpl implements CourseServices {
             }
             course.setCategoryId(category);
             
-            // Handle teacher
             User teacher = userService.getUserById(teacherId);
             if (teacher == null) {
                 throw new RuntimeException("Không tìm thấy thông tin giáo viên với ID: " + teacherId);
@@ -125,25 +122,21 @@ public class CourseServicesImpl implements CourseServices {
             
             course.setTeacherId(teacher);
             
-            // Handle image upload
             if (request.getImage() != null && !request.getImage().isEmpty()) {
                 try {
                     Map res = this.cloudinary.uploader().upload(request.getImage().getBytes(), ObjectUtils.asMap("resource_type", "image", "folder","courses_img" ));
                     course.setImage((String) res.get("secure_url"));
                 } catch (IOException ex) {
                     System.err.println("Error uploading image to Cloudinary: " + ex.getMessage());
-                    // Fallback to default image
                     course.setImage("https://res.cloudinary.com/dxxwcby8l/image/upload/v1647248652/dkeolz3ghc0eino87iec.jpg");
                 } catch (Exception ex) {
                     System.err.println("Unexpected error during image upload: " + ex.getMessage());
-                    // Fallback to default image
                     course.setImage("https://res.cloudinary.com/dxxwcby8l/image/upload/v1647248652/dkeolz3ghc0eino87iec.jpg");
                 }
             } else {
                 course.setImage("https://res.cloudinary.com/dxxwcby8l/image/upload/v1647248652/dkeolz3ghc0eino87iec.jpg");
             }
             
-            // Save course to database
             try {
                 this.courseRepo.addOrUpdate(course);
                 return course;
@@ -153,10 +146,8 @@ public class CourseServicesImpl implements CourseServices {
             }
             
         } catch (IllegalArgumentException e) {
-            // Re-throw validation errors
             throw e;
         } catch (RuntimeException e) {
-            // Re-throw business logic errors
             throw e;
         } catch (Exception e) {
             System.err.println("Unexpected error in createCourse service: " + e.getMessage());

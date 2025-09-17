@@ -143,6 +143,7 @@ public class ApiPaymentController {
 
     @PostMapping("/callback/momo")
     public ResponseEntity<?> momoCallback(@RequestBody Map<String, String> callbackData) {
+        System.out.println("Momo callback raw: " + callbackData);
         try {
             String orderId = callbackData.get("orderId");
             String resultCode = callbackData.get("resultCode");
@@ -201,7 +202,6 @@ public class ApiPaymentController {
 
             Payment payment = paymentService.getPaymentById(paymentId);
             if (payment != null) {
-                // Lưu transactionId từ VNPay nếu có
                 String vnpTransNo = callbackData.get("vnp_TransactionNo");
                 if (vnpTransNo != null && !vnpTransNo.isEmpty()) {
                     payment.setTransactionId(vnpTransNo);

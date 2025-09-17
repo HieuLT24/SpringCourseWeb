@@ -23,5 +23,6 @@ public interface UserRepository {
     public void updateUser(User user);
     public List<User> getUsers();
     public User getUserById(int id);
-    public void deleteUserById(int id);
+    public void deleteUserById(int id); 
+    public User createUserFromGoogle(String email, String name, String pictureUrl);
 }

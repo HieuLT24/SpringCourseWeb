@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     try {
       const response = await authService.login(username, password);
-      
+      console.log("response", response);
       if (response.success) {
         authService.saveAuthData(response);
         setIsAuthenticated(true);
@@ -42,6 +42,23 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       return { success: false, message: 'Có lỗi xảy ra khi đăng nhập' };
+    }
+  };
+
+  const loginGoogle = async (token) => {
+    try {
+      const response = await authService.loginGoogle(token);
+      console.log("response", response);
+      if (response) {
+        authService.saveAuthData(response);
+        setIsAuthenticated(true);
+        setCurrentUser(response.user);
+        return { success: true };
+      } else {
+        return { success: false, message: response.message };
+      }
+    } catch (error) {
+      return { success: false, message: 'Có lỗi xảy ra khi đăng nhập Google' };
     }
   };
 
@@ -73,12 +90,10 @@ export const AuthProvider = ({ children }) => {
         setCurrentUser(response.user);
         return { success: true };
       } else {
-        // Refresh token expired, logout user
         await logout();
         return { success: false, message: 'Phiên đăng nhập đã hết hạn' };
       }
     } catch (error) {
-      // Refresh token invalid, logout user
       await logout();
       return { success: false, message: 'Phiên đăng nhập không hợp lệ' };
     }
@@ -89,10 +104,11 @@ export const AuthProvider = ({ children }) => {
     currentUser,
     loading,
     login,
+    loginGoogle,
     logout,
     refreshToken,
     checkAuthStatus
-  }), [isAuthenticated, currentUser, loading, login, logout, refreshToken, checkAuthStatus]);
+  }), [isAuthenticated, currentUser, loading, login, loginGoogle, logout, refreshToken, checkAuthStatus]);
 
   return (
     <AuthContext.Provider value={value}>

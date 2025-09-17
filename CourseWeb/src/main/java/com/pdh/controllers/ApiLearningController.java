@@ -179,7 +179,6 @@ public class ApiLearningController {
     @DeleteMapping("/course/{courseId}/lecture/{lectureId}")
     public ResponseEntity<?> deleteLecture(@PathVariable int courseId, @PathVariable int lectureId) {
         try {
-            // Kiểm tra quyền trước khi xóa
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
                 return ResponseEntity.status(401).body("Bạn cần đăng nhập để thực hiện chức năng này");
@@ -192,7 +191,6 @@ public class ApiLearningController {
                 return ResponseEntity.status(400).body("Không tìm thấy thông tin người dùng");
             }
 
-            // Kiểm tra xem user có phải là teacher của course này không
             Course course = courseService.getCourseById(courseId);
             if (course == null) {
                 return ResponseEntity.status(404).body("Không tìm thấy khóa học");
@@ -273,7 +271,6 @@ public class ApiLearningController {
         examInfo.put("durationMinutes", exam.getDurationMinutes());
         result.put("exam", examInfo);
         
-        // Lấy câu hỏi có phân trang
         Map<String, Object> questionsData = questionServices.getQuestionsByExamIdWithPagination(examId, page, limit);
         result.put("questions", questionsData.get("questions"));
         result.put("total", questionsData.get("total"));
@@ -333,7 +330,6 @@ public class ApiLearningController {
                 }
             }
         } catch (Exception e) {
-            // ignore save error but still return score
         }
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);
@@ -402,7 +398,6 @@ public class ApiLearningController {
 
         postService.addOrUpdate(newPost);
 
-        // Trả về PostDto thay vì Post
         PostDto postDto = postService.getPostDtoById(newPost.getId());
         return ResponseEntity.ok(postDto);
     }
@@ -415,8 +410,6 @@ public class ApiLearningController {
         if (course == null || post == null)
             return ResponseEntity.notFound().build();
 
-        // Kiểm tra xem post có thuộc course này không
-        // Lấy post gốc để kiểm tra forum
         Post originalPost = postService.getPostById(postId);
         if (originalPost == null || !originalPost.getForumId().getCourseId().getId().equals(course.getId())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Post không thuộc course này.");
@@ -506,7 +499,6 @@ public class ApiLearningController {
             @RequestBody Map<String, Object> payload,
             Authentication authentication) {
         try {
-            // Kiểm tra quyền
             if (authentication == null || !authentication.isAuthenticated()) {
                 return ResponseEntity.status(401).body("Bạn cần đăng nhập để thực hiện chức năng này");
             }
@@ -518,7 +510,6 @@ public class ApiLearningController {
                 return ResponseEntity.status(400).body("Không tìm thấy thông tin người dùng");
             }
 
-            // Kiểm tra xem user có phải là teacher của course này không
             Course course = courseService.getCourseById(courseId);
             if (course == null) {
                 return ResponseEntity.status(404).body("Không tìm thấy khóa học");
@@ -528,7 +519,6 @@ public class ApiLearningController {
                 return ResponseEntity.status(403).body("Bạn không có quyền tạo bài kiểm tra cho khóa học này");
             }
 
-            // Tạo exam mới
             Exam newExam = new Exam();
             newExam.setTitle((String) payload.get("title"));
             newExam.setDescription((String) payload.get("description"));
@@ -562,7 +552,6 @@ public class ApiLearningController {
             @RequestBody Map<String, Object> payload,
             Authentication authentication) {
         try {
-            // Kiểm tra quyền
             if (authentication == null || !authentication.isAuthenticated()) {
                 return ResponseEntity.status(401).body("Bạn cần đăng nhập để thực hiện chức năng này");
             }
@@ -574,7 +563,6 @@ public class ApiLearningController {
                 return ResponseEntity.status(400).body("Không tìm thấy thông tin người dùng");
             }
 
-            // Kiểm tra xem user có phải là teacher của course này không
             Course course = courseService.getCourseById(courseId);
             if (course == null) {
                 return ResponseEntity.status(404).body("Không tìm thấy khóa học");
@@ -584,7 +572,6 @@ public class ApiLearningController {
                 return ResponseEntity.status(403).body("Bạn không có quyền cập nhật bài kiểm tra này");
             }
 
-            // Cập nhật exam
             Exam examToUpdate = new Exam();
             examToUpdate.setTitle((String) payload.get("title"));
             examToUpdate.setDescription((String) payload.get("description"));
@@ -615,7 +602,6 @@ public class ApiLearningController {
     @DeleteMapping("/course/{courseId}/exam/{examId}")
     public ResponseEntity<?> deleteExam(@PathVariable int courseId, @PathVariable int examId) {
         try {
-            // Kiểm tra quyền
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
                 return ResponseEntity.status(401).body("Bạn cần đăng nhập để thực hiện chức năng này");
@@ -628,7 +614,6 @@ public class ApiLearningController {
                 return ResponseEntity.status(400).body("Không tìm thấy thông tin người dùng");
             }
 
-            // Kiểm tra xem user có phải là teacher của course này không
             Course course = courseService.getCourseById(courseId);
             if (course == null) {
                 return ResponseEntity.status(404).body("Không tìm thấy khóa học");
@@ -662,7 +647,6 @@ public class ApiLearningController {
             @RequestBody Map<String, Object> payload,
             Authentication authentication) {
         try {
-            // Kiểm tra quyền
             if (authentication == null || !authentication.isAuthenticated()) {
                 return ResponseEntity.status(401).body("Bạn cần đăng nhập để thực hiện chức năng này");
             }
@@ -674,7 +658,6 @@ public class ApiLearningController {
                 return ResponseEntity.status(400).body("Không tìm thấy thông tin người dùng");
             }
 
-            // Kiểm tra xem user có phải là teacher của course này không
             Course course = courseService.getCourseById(courseId);
             if (course == null) {
                 return ResponseEntity.status(404).body("Không tìm thấy khóa học");
@@ -684,7 +667,6 @@ public class ApiLearningController {
                 return ResponseEntity.status(403).body("Bạn không có quyền tạo câu hỏi cho khóa học này");
             }
 
-            // Tạo question mới
             Question newQuestion = new Question();
             newQuestion.setContent((String) payload.get("content"));
             newQuestion.setPoints((Integer) payload.get("points"));
@@ -718,7 +700,6 @@ public class ApiLearningController {
             @RequestBody Map<String, Object> payload,
             Authentication authentication) {
         try {
-            // Kiểm tra quyền
             if (authentication == null || !authentication.isAuthenticated()) {
                 return ResponseEntity.status(401).body("Bạn cần đăng nhập để thực hiện chức năng này");
             }
@@ -730,7 +711,6 @@ public class ApiLearningController {
                 return ResponseEntity.status(400).body("Không tìm thấy thông tin người dùng");
             }
 
-            // Kiểm tra xem user có phải là teacher của course này không
             Course course = courseService.getCourseById(courseId);
             if (course == null) {
                 return ResponseEntity.status(404).body("Không tìm thấy khóa học");
@@ -740,7 +720,6 @@ public class ApiLearningController {
                 return ResponseEntity.status(403).body("Bạn không có quyền cập nhật câu hỏi này");
             }
 
-            // Cập nhật question
             Question questionToUpdate = new Question();
             questionToUpdate.setContent((String) payload.get("content"));
             questionToUpdate.setPoints((Integer) payload.get("points"));
@@ -766,7 +745,6 @@ public class ApiLearningController {
             @PathVariable int examId,
             @PathVariable int questionId) {
         try {
-            // Kiểm tra quyền
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
                 return ResponseEntity.status(401).body("Bạn cần đăng nhập để thực hiện chức năng này");
@@ -779,7 +757,6 @@ public class ApiLearningController {
                 return ResponseEntity.status(400).body("Không tìm thấy thông tin người dùng");
             }
 
-            // Kiểm tra xem user có phải là teacher của course này không
             Course course = courseService.getCourseById(courseId);
             if (course == null) {
                 return ResponseEntity.status(404).body("Không tìm thấy khóa học");
@@ -814,7 +791,6 @@ public class ApiLearningController {
             @RequestBody Map<String, Object> payload,
             Authentication authentication) {
         try {
-            // Kiểm tra quyền
             if (authentication == null || !authentication.isAuthenticated()) {
                 return ResponseEntity.status(401).body("Bạn cần đăng nhập để thực hiện chức năng này");
             }
@@ -826,7 +802,6 @@ public class ApiLearningController {
                 return ResponseEntity.status(400).body("Không tìm thấy thông tin người dùng");
             }
 
-            // Kiểm tra xem user có phải là teacher của course này không
             Course course = courseService.getCourseById(courseId);
             if (course == null) {
                 return ResponseEntity.status(404).body("Không tìm thấy khóa học");
@@ -836,11 +811,9 @@ public class ApiLearningController {
                 return ResponseEntity.status(403).body("Bạn không có quyền tạo đáp án cho khóa học này");
             }
 
-            // Tạo answer mới
             Answer newAnswer = new Answer();
             newAnswer.setContent((String) payload.get("content"));
 
-            // Xử lý chuyển đổi isTrue từ Integer sang Short
             Object isTrueObj = payload.get("isTrue");
             Short isTrue = null;
             if (isTrueObj != null) {
@@ -885,7 +858,6 @@ public class ApiLearningController {
             @RequestBody Map<String, Object> payload,
             Authentication authentication) {
         try {
-            // Kiểm tra quyền
             if (authentication == null || !authentication.isAuthenticated()) {
                 return ResponseEntity.status(401).body("Bạn cần đăng nhập để thực hiện chức năng này");
             }
@@ -897,7 +869,6 @@ public class ApiLearningController {
                 return ResponseEntity.status(400).body("Không tìm thấy thông tin người dùng");
             }
 
-            // Kiểm tra xem user có phải là teacher của course này không
             Course course = courseService.getCourseById(courseId);
             if (course == null) {
                 return ResponseEntity.status(404).body("Không tìm thấy khóa học");
@@ -907,11 +878,9 @@ public class ApiLearningController {
                 return ResponseEntity.status(403).body("Bạn không có quyền cập nhật đáp án này");
             }
 
-            // Cập nhật answer
             Answer answerToUpdate = new Answer();
             answerToUpdate.setContent((String) payload.get("content"));
 
-            // Xử lý chuyển đổi isTrue từ Integer sang Short
             Object isTrueObj = payload.get("isTrue");
             Short isTrue = null;
             if (isTrueObj != null) {
@@ -948,7 +917,6 @@ public class ApiLearningController {
             @PathVariable int questionId,
             @PathVariable int answerId) {
         try {
-            // Kiểm tra quyền
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
                 return ResponseEntity.status(401).body("Bạn cần đăng nhập để thực hiện chức năng này");
@@ -961,7 +929,6 @@ public class ApiLearningController {
                 return ResponseEntity.status(400).body("Không tìm thấy thông tin người dùng");
             }
 
-            // Kiểm tra xem user có phải là teacher của course này không
             Course course = courseService.getCourseById(courseId);
             if (course == null) {
                 return ResponseEntity.status(404).body("Không tìm thấy khóa học");

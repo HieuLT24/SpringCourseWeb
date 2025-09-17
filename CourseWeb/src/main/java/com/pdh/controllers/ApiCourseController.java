@@ -78,7 +78,6 @@ public class ApiCourseController {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            // Validate authentication
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
                 response.put("success", false);

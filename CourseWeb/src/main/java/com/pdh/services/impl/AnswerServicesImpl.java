@@ -54,7 +54,6 @@ public class AnswerServicesImpl implements AnswerServices {
         
         existingAnswer.setContent(answer.getContent());
         existingAnswer.setIsTrue(answer.getIsTrue());
-        // existingAnswer.setExplanation(answer.getExplanation());
         
         this.answerRepo.addOrUpdate(existingAnswer);
         return existingAnswer;

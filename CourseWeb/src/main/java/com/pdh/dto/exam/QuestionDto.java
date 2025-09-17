@@ -27,7 +27,6 @@ public class QuestionDto {
         }
     }
 
-    // Getters and Setters
     public Integer getId() {
         return id;
     }

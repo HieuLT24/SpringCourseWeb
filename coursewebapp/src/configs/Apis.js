@@ -8,7 +8,9 @@ export const endpoints = {
         'logout': 'auth/logout',
         'refresh': 'auth/refresh',
         'forgotPassword': 'auth/forgot-password',
-        'resetPassword': 'auth/reset-password'
+        'resetPassword': 'auth/reset-password',
+        'loginGoogle': 'auth/login/google',
+        'googleClientId': 'auth/public/google-client-id'
     },
 
     'users': {
@@ -116,7 +118,7 @@ const instance = axios.create({
 
 instance.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem("access_token"); // hoặc Redux store
+        const token = localStorage.getItem("accessToken");
         if (token) {
             config.headers["Authorization"] = `Bearer ${token}`;
         }

@@ -58,32 +58,26 @@ public class UserServicesImpl implements UserServices {
             throw new UsernameNotFoundException("Invalid username");
         }
         Set<GrantedAuthority> authorities = new HashSet<>();
-        // Sử dụng role trực tiếp từ database
         authorities.add(new SimpleGrantedAuthority(u.getRole()));
 
         return new org.springframework.security.core.userdetails.User(
                 u.getUsername(), u.getPassword(), authorities);
     }
     
-    // Đăng ký người dùng mới
     @Override
     public void createOrUpdateUser(User user) {
         if (user.getId() != null) {
-            // Update existing user - check if username/email exists for OTHER users
             User existingUser = getUserById(user.getId());
             if (existingUser != null) {
-                // Check username conflict with other users
                 if (!existingUser.getUsername().equals(user.getUsername()) && isUsernameExists(user.getUsername())) {
                     throw new RuntimeException("Tên đăng nhập đã tồn tại");
                 }
                 
-                // Check email conflict with other users
                 if (!existingUser.getEmail().equals(user.getEmail()) && isEmailExists(user.getEmail())) {
                     throw new RuntimeException("Email đã tồn tại");
                 }
             }
         } else {
-            // Create new user - check if username/email exists
             if (isUsernameExists(user.getUsername())) {
                 throw new RuntimeException("Tên đăng nhập đã tồn tại");
             }
@@ -97,15 +91,12 @@ public class UserServicesImpl implements UserServices {
         this.userRepo.createOrUpdateUser(user);
     }
     
-    // Cập nhật hồ sơ: không đổi username, không encode lại password
     @Override
     public void updateProfile(User user) {
         if (user.getId() == null) throw new RuntimeException("Thiếu ID người dùng");
-        // Kiểm tra email trùng với người khác
         if (userRepo.isEmailExistsExceptId(user.getEmail(), user.getId())) {
             throw new RuntimeException("Email đã tồn tại");
         }
-        // Không đổi username, nên không cần check username trừ khi client gửi khác
         if (user.getUsername() != null) {
             User existing = userRepo.getUserById(user.getId());
             if (existing != null && !existing.getUsername().equals(user.getUsername())) {
@@ -117,7 +108,6 @@ public class UserServicesImpl implements UserServices {
         this.userRepo.updateUser(user);
     }
     
-    // Cập nhật user từ admin: chỉ cập nhật name, email, role, không đổi password
     @Override
     public void updateUserByAdmin(User user) {
         if (user.getId() == null) throw new RuntimeException("Thiếu ID người dùng");
@@ -127,12 +117,10 @@ public class UserServicesImpl implements UserServices {
             throw new RuntimeException("Không tìm thấy người dùng");
         }
         
-        // Kiểm tra email trùng với người khác (nếu email thay đổi)
         if (!existingUser.getEmail().equals(user.getEmail()) && isEmailExists(user.getEmail())) {
             throw new RuntimeException("Email đã tồn tại");
         }
         
-        // Chỉ cập nhật các field được phép
         existingUser.setName(user.getName());
         existingUser.setEmail(user.getEmail());
         existingUser.setRole(user.getRole());
@@ -140,7 +128,6 @@ public class UserServicesImpl implements UserServices {
         this.userRepo.createOrUpdateUser(existingUser);
     }
 
-    // Đổi mật khẩu với mã hóa
     @Override
     public void changePassword(User user, String newPassword) {
         if (user == null) throw new RuntimeException("Không tìm thấy user");
@@ -162,4 +149,18 @@ public class UserServicesImpl implements UserServices {
     public void deleteUserById(int id) {
         this.userRepo.deleteUserById(id);
     }
+
+    @Override
+    public User createUserFromGoogle(String email, String name, String pictureUrl) {
+        User user = new User();
+        user.setEmail(email);
+        user.setName(name);
+        user.setRole("USER");
+        user.setUsername(email);
+        String randomPassword = java.util.UUID.randomUUID().toString();
+        user.setPassword(passwordEncoder.encode(randomPassword));
+        this.userRepo.createOrUpdateUser(user);
+        return user;
+    }
+    
 }

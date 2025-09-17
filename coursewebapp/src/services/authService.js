@@ -45,6 +45,14 @@ class AuthService {
     }
   }
 
+  async loginGoogle(token) {
+    try {
+      const response = await axios.post(endpoints.auth.loginGoogle, { token });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
   async resetPassword(token, password, confirmPassword) {
     try {
       const response = await axios.post(endpoints.auth.resetPassword, null, {
@@ -56,7 +64,6 @@ class AuthService {
     }
   }
 
-  // Local storage methods
   saveAuthData(data) {
     if (data.accessToken) {
       localStorage.setItem('accessToken', data.accessToken);

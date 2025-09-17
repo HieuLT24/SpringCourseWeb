@@ -47,13 +47,12 @@ public class Payment implements Serializable {
     private Integer id;
     @Size(max = 45)
     @Column(name = "method")
-    private String method; // CARD hoặc QR_CODE
-    // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
+    private String method;
     @Column(name = "amount")
     private Double amount;
     @Size(max = 45)
     @Column(name = "status")
-    private String status; // PENDING, SUCCESS, FAILED
+    private String status;
     @Column(name = "time_stamp")
     @Temporal(TemporalType.TIMESTAMP)
     private Date timeStamp;

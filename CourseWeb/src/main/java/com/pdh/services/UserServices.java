@@ -26,5 +26,5 @@ public interface UserServices extends UserDetailsService {
     List<User> getUsers();
     User getUserById(int id);
     void deleteUserById(int id);
-    // User registerUser(String name, String email, String username, String password);
+    User createUserFromGoogle(String email, String name, String pictureUrl);
 }
